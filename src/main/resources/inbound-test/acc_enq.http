@@ -1,0 +1,84 @@
+# ACCOUNT ENQUIRY FROM CI-HUB
+POST http://localhost:9001/komi-inbound/json/service HTTP/1.1
+Content-Type: application/json
+
+{
+  "BusMsg": {
+    "AppHdr": {
+      "Fr": {
+        "FIId": {
+          "FinInstnId": {
+            "Othr": {
+              "Id": "FASTIDJA"
+            }
+          }
+        }
+      },
+      "To": {
+        "FIId": {
+          "FinInstnId": {
+            "Othr": {
+              "Id": "SIHBIDJ1"
+            }
+          }
+        }
+      },
+      "BizMsgIdr": "20220101FASTIDJA510O01000000{{$randomInt 100 999}}",
+      "MsgDefIdr": "pacs.008.001.08",
+      "CreDt": "2021-12-28T08:43:33Z"
+    },
+    "Document": {
+      "FIToFICstmrCdtTrf": {
+        "GrpHdr": {
+          "MsgId": "20211228CITYIDJA51000000024",
+          "CreDtTm": "2021-11-03T12:43:33.361",
+          "NbOfTxs": "1",
+          "SttlmInf": {
+            "SttlmMtd": "CLRG"
+          }
+        },
+        "CdtTrfTxInf": [
+          {
+            "PmtId": {
+              "EndToEndId": "20220101FASTIDJA510O01000000{{$randomInt 100 999}}",
+              "TxId": "20211103CITYIDJA51000000007"
+            },
+            "PmtTpInf": {
+              "CtgyPurp": {
+                "Prtry": "51001"
+              }
+            },
+            "IntrBkSttlmAmt": {
+              "Value": "250064.00",
+              "Ccy": "IDR"
+            },
+            "ChrgBr": "DEBT",
+            "Dbtr": {},
+            "DbtrAgt": {
+              "FinInstnId": {
+                "Othr": {
+                  "Id": "CITYIDJA"
+                }
+              }
+            },
+            "CdtrAgt": {
+              "FinInstnId": {
+                "Othr": {
+                  "Id": "SIHBIDJ1"
+                }
+              }
+            },
+            "Cdtr": {},
+            "CdtrAcct": {
+              "Id": {
+                "Othr": {
+                  "Id": "00102000753"
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

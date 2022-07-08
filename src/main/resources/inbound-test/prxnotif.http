@@ -1,0 +1,101 @@
+POST http://localhost:9001/komi-inbound/json/service HTTP/1.1
+Content-Type: application/json
+
+{
+  "BusMsg": {
+    "AppHdr": {
+      "Fr": {
+        "FIId": {
+          "FinInstnId": {
+            "Othr": {
+              "Id": "FASTIDJA"
+            }
+          }
+        }
+      },
+      "To": {
+        "FIId": {
+          "FinInstnId": {
+            "Othr": {
+              "Id": "SIHBIDJA"
+            }
+          }
+        }
+      },
+      "BizMsgIdr": "20210705FASTIDJA720H9900930955",
+      "MsgDefIdr": "prxy.901.001.01",
+      "BizSvc": "BI",
+      "CreDt": "2021-07-05T11:20:33Z",
+      "CpyDplct": "CODU",
+      "PssblDplct": false
+    },
+    "Document": {
+      "PrxyNtfctn": {
+        "GrpHdr": {
+          "MsgId": "20210705FASTIDJA72000930956",
+          "CreDtTm": "2021-07-05T11:20:33.241",
+          "MsgRcpt": {
+            "Agt": {
+              "FinInstnId": {
+                "Othr": {
+                  "Id": "AGTBIDJA"
+                }
+              }
+            }
+          }
+        },
+        "Ntfctn": {
+          "OrgnlPrxy": {
+            "Tp": "02",
+            "Val": "andilala@gmail.com"
+          },
+          "OrgnlId": "20210705AGTBIDJA72002991091",
+          "OrgnlAcct": {
+            "RegnId": "8800000004",
+            "DsplNm": "Potato A",
+            "Agt": {
+              "FinInstnId": {
+                "Othr": {
+                  "Id": "SIHBIDJA"
+                }
+              }
+            },
+            "Acct": {
+              "Id": {
+                "Othr": {
+                  "Id": "***1004"
+                }
+              },
+              "Tp": {
+                "Prtry": "SVGS"
+              },
+              "Nm": "Potato BA"
+            }
+          },
+          "NewAcct": {
+            "RegnId": "8800000004",
+            "DsplNm": "Potato A",
+            "Agt": {
+              "FinInstnId": {
+                "Othr": {
+                  "Id": "BBAIIDJA"
+                }
+              }
+            },
+            "Acct": {
+              "Id": {
+                "Othr": {
+                  "Id": "***1004"
+                }
+              },
+              "Tp": {
+                "Prtry": "SVGS"
+              },
+              "Nm": "Potato B"
+            }
+          }
+        }
+      }
+    }
+  }
+}

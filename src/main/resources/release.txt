@@ -1,0 +1,35 @@
+3-Maret-2022: Rel-1.1
+Bugfix : 
+- fix error for empty RmtInf
+Change : 
+- accountEnquiry response, exclude Creditor's Type, Creditor's National Identity, Creditor's Resident Status, Creditor's Town Name
+
+08-Mar-2022: Rel-1.2
+Upgrade
+- Camel 3.14.1
+
+28-Mar-2022
+Bugfix :
+- response CreDtTm as String
+
+31-Mar-2022
+Bugfix :
+- CreDtTm pada pacs.028 (payment status) 
+
+8-Apr-2022
+BugFix :
+- Upgrade Spring Boot 2.5.12 
+- SettlementSAF, jika response U106 maka status CT.settlement = NOTFOUND
+- PaymentStatusSAF, no bizmsgidr ubah dari RFI jadi OFI
+- Flat002.CrdtAgnFinInstId diganti CT.orgnlBank/recptBank
+
+25-Juni-2022 (v1.5)
+Coding:
+- Upgrade Springboot 2.7.0, Camel 3.17.0
+Bugfix:
+- Error unt build category purpose untuk reversal ct
+Functional:
+- Atas Credit yang timeout jangan kirim Reversal-CT
+
+
+ 

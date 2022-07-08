@@ -1,0 +1,78 @@
+# FI TO FI CREDIT TRANSFER FROM CI-HUB
+POST http://localhost:9001/services/api/inbound HTTP/1.1
+Content-Type: application/json
+
+{
+  "BusMsg" : {
+    "AppHdr" : {
+      "Fr" : {
+        "Fiid" : {
+          "FinInstnId" : {
+            "Othr" : {
+              "Id" : "CENAIDJA"
+            }
+          }
+        }
+      },
+      "To" : {
+        "Fiid" : {
+          "FinInstnId" : {
+            "Othr" : {
+              "Id" : "INDOIDJA"
+            }
+          }
+        }
+      },
+      "BizMsgIdr" : "20210301FASTIDJA019ORB12345958",
+      "MsgDefIdr" : "pacs.009.001.09",
+      "CreDt" : "2021-03-01T20:00:00"
+    },
+    "Document" : {
+      "FicdtTrf" : {
+        "GrpHdr" : {
+          "MsgId" : "20210301INDOIDJA01912345678",
+          "CreDtTm" : "2021-03-01T19:00:00",
+          "NbOfTxs" : "1",
+          "SttlmInf" : {
+            "SttlmMtd" : "CLRG"
+          }
+        },
+        "CdtTrfTxInf" : [ {
+          "PmtId" : {
+            "EndToEndId" : "20210301INDOIDJA019ORB12345678",
+            "TxId" : "20210301INDOIDJA01912345678"
+          },
+          "PmtTpInf" : {
+            "CtgyPurp" : {
+              "Prtry" : "99"
+            }
+          },
+          "IntrBkSttlmAmt" : {
+            "Value" : "124456.78",
+            "Ccy" : "IDR"
+          },
+          "IntrBkSttlmDt" : "2021-03-01T00:00:00",
+          "Dbtr" : {
+            "FinInstnId" : {
+              "Othr" : {
+                "Id" : "BSMDIDJA"
+              }
+            }
+          },
+          "Cdtr" : {
+            "FinInstnId" : {
+              "Othr" : {
+                "Id" : "CENAIDJA"
+              }
+            }
+          },
+          "RmtInf" : {
+            "Ustrd" : [ "A line of free text up to 140 characters, should contain a description or purpose info of this FI to FI credit transfer" ]
+          }
+        } ]
+      }
+    }
+  }
+}
+
+###
