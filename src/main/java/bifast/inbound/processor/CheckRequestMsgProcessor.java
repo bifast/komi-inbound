@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import bifast.inbound.pojo.ProcessDataPojo;
+import bifast.inbound.pojo.flat.FlatAdmi002Pojo;
 import bifast.inbound.pojo.flat.FlatAdmi004Pojo;
 import bifast.inbound.pojo.flat.FlatPacs002Pojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
@@ -89,18 +90,23 @@ public class CheckRequestMsgProcessor implements Processor {
 			processData.setInbMsgName("EvtNtf");
 			exchange.setProperty("msgName", "EvtNtf");
 		}
-
-//		exchange.getMessage().setHeader("hdr_msgType", trnType);
 		
+		else if (inputMsg.getAppHdr().getMsgDefIdr().startsWith("admi.002")) {
+			FlatAdmi002Pojo flat002 = flatMsgService.flatteningAdmi002(inputMsg);
+			processData.setBiRequestFlat(flat002);
+			exchange.setProperty("flatRequest", flat002);
+			trnType = "MSGRJCT";
+			processData.setInbMsgName("MsgRjct");
+			exchange.setProperty("msgName", "MsgRjct");
+		}
+
 		processData.setBiRequestMsg(inputMsg);
 		processData.setStartTime(Instant.now());
-//		processData.setInbMesgType(trnType);
 		processData.setKomiTrnsId(RefUtils.genKomiTrnsId());
 		
 		logger.debug("KomiTransId: " + processData.getKomiTrnsId());
 		
 		processData.setReceivedDt(LocalDateTime.now());
-//		processData.setTextDataReceived(null);
 
 		exchange.setProperty("starttime", LocalDateTime.now());
 		exchange.setProperty("prop_process_data", processData);

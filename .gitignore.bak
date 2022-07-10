@@ -35,4 +35,3 @@ build/
 
 logs/
 src/application-*.properties
-bin/

@@ -26,10 +26,13 @@ BugFix :
 25-Juni-2022 (v1.5)
 Coding:
 - Upgrade Springboot 2.7.0, Camel 3.17.0
+- Add msg receive admi.002
 Bugfix:
 - Error unt build category purpose untuk reversal ct
+- Antisipasi response AE dari corebank "U999 - Program Call Error"
 Functional:
 - Atas Credit yang timeout jangan kirim Reversal-CT
+
 
 
  

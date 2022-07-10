@@ -41,6 +41,10 @@ public class InboundRoute extends RouteBuilder {
 					.to("direct:reverct")
 					.setHeader("hdr_toBIobj", simple("${body}"))
 
+				.when().simple("${exchangeProperty.msgName} == 'MsgRjct'")     // reverse CT
+					.to("direct:reverct")
+					.setBody(constant(""))
+
 				.otherwise()	
 					.log("[Inbound] Message ${exchangeProperty.msgName} tidak dikenal")
 			.end()

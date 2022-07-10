@@ -77,7 +77,7 @@ public class IsoAEResponsePrc implements Processor {
 		else {
 			fault = (FaultPojo) oResp;
 
-			seed.setStatus(fault.getResponseCode());
+			seed.setStatus("RJCT");
 			
 			if (fault.getReasonCode().equals("U101")) 
 				seed.setReason("52");

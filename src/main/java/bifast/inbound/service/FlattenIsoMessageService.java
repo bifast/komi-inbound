@@ -4,6 +4,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.springframework.stereotype.Service;
 
+import bifast.inbound.pojo.flat.FlatAdmi002Pojo;
 import bifast.inbound.pojo.flat.FlatAdmi004Pojo;
 import bifast.inbound.pojo.flat.FlatPacs002Pojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
@@ -335,6 +336,28 @@ public class FlattenIsoMessageService {
 		admi004.setEventTime(strTgl(busMsg.getDocument().getSysEvtNtfctn().getEvtInf().getEvtTm()));
 		
 		return admi004;		
+	}
+	
+	public FlatAdmi002Pojo flatteningAdmi002 (BusinessMessage busMsg) {
+		FlatAdmi002Pojo admi002 = new FlatAdmi002Pojo();
+				
+		admi002.setFrBic(busMsg.getAppHdr().getFr().getFIId().getFinInstnId().getOthr().getId());	
+		admi002.setToBic(busMsg.getAppHdr().getTo().getFIId().getFinInstnId().getOthr().getId());
+		admi002.setBizMsgIdr(busMsg.getAppHdr().getBizMsgIdr());
+		admi002.setMsgDefIdr(busMsg.getAppHdr().getMsgDefIdr());
+		admi002.setBizSvc(busMsg.getAppHdr().getBizSvc());
+		admi002.setCpyDplct(busMsg.getAppHdr().getCpyDplct().value());
+		admi002.setCreDt(strTgl(busMsg.getAppHdr().getCreDt()));
+		admi002.setPssblDplct(null);
+		
+		admi002.setAdditionalData(busMsg.getDocument().getMessageReject().getRsn().getAddtlData());
+		admi002.setErrorLocation(busMsg.getDocument().getMessageReject().getRsn().getErrLctn());
+		admi002.setReasonDesc(busMsg.getDocument().getMessageReject().getRsn().getRsnDesc());
+		admi002.setRejectDateTime(busMsg.getDocument().getMessageReject().getRsn().getRjctnDtTm().toString());
+		admi002.setRejectReason(busMsg.getDocument().getMessageReject().getRsn().getRjctgPtyRsn());
+		admi002.setRelatedRef(busMsg.getDocument().getMessageReject().getRltdRef().getRef());
+		
+		return admi002;		
 	}
 	
 	

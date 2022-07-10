@@ -62,7 +62,11 @@ public class SaveAccountEnquiryProcessor implements Processor {
 			FaultPojo fault = (FaultPojo) oCbResponse;
 			ae.setErrorMessage(fault.getErrorMessage());
 			ae.setResponseCode("RJCT");
-			ae.setReasonCode(fault.getReasonCode());
+			if (fault.getReasonCode().length()>20)
+				ae.setReasonCode(fault.getReasonCode().substring(0, 20));
+			else
+				ae.setReasonCode(fault.getReasonCode());
+				
 		}
 		else {
 			AccountEnquiryInboundResponse aeResponse = (AccountEnquiryInboundResponse) oCbResponse;
