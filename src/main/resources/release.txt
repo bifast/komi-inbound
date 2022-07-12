@@ -27,6 +27,7 @@ BugFix :
 Coding:
 - Upgrade Springboot 2.7.0, Camel 3.17.0
 - Add msg receive admi.002
+- On-off CTSAFRoute ubah jadi periodik 
 Bugfix:
 - Error unt build category purpose untuk reversal ct
 - Antisipasi response AE dari corebank "U999 - Program Call Error"

@@ -60,18 +60,12 @@ public class SettlementRoute extends RouteBuilder {
 
 	 		.process(saveSettlement)
 
-			.choice()
-				.when().simple("${exchangeProperty.pr_sttlType} == 'Inbound'")
-		 			.log(LoggingLevel.DEBUG, "komi.settlement", 
-		 					"[${exchangeProperty.prop_process_data.inbMsgName}:${exchangeProperty.prop_process_data.endToEndId}] activate credit-posting job")
-
-					.to("controlbus:route?routeId=komi.ct.saf&action=resume&async=true")
-				.when().simple("${exchangeProperty.pr_sttlType} == 'Outbound'")
-					.process(settlementDebitProcessor)
-					.to("direct:isoadpt-sttl")
-			 		.log("[${exchangeProperty.prop_process_data.inbMsgName}:${exchangeProperty.prop_process_data.endToEndId}] Selesai posting settlement")
-			.end()
-
+	 		.filter().simple("${exchangeProperty.pr_sttlType} == 'Outbound'")
+				.process(settlementDebitProcessor)
+				.to("direct:isoadpt-sttl")
+		 		.log("[${exchangeProperty.prop_process_data.inbMsgName}:${exchangeProperty.prop_process_data.endToEndId}] Selesai posting settlement")
+	 		.end()
+	 		
 		;
 
 	}

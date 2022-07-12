@@ -16,6 +16,7 @@ import bifast.inbound.corebank.isopojo.CreditRequest;
 import bifast.inbound.corebank.isopojo.DebitReversalRequest;
 import bifast.inbound.corebank.isopojo.SettlementRequest;
 import bifast.inbound.model.CorebankTransaction;
+import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.repository.CorebankTransactionRepository;
 
 @Component
@@ -27,7 +28,11 @@ public class SaveCBTransactionProc implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		
+		String msgName = exchange.getMessage().getHeader("cb_msgname", String.class);
+		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
 		
+		exchange.setProperty("prop_process_data", processData);
+
 		String komiTrnsId = exchange.getProperty("pr_komitrnsid", String.class);
 		
 		String strRequest = exchange.getProperty("cb_request_str", String.class);
@@ -46,7 +51,7 @@ public class SaveCBTransactionProc implements Processor {
 		corebankTrans.setReason(reason);
 		corebankTrans.setResponse(response);
 
-		logger.debug("Akan save " + oCbRequest.getClass().getSimpleName());
+		logger.debug("[" + msgName + ":" + processData.getEndToEndId() + "] Akan save " + oCbRequest.getClass().getSimpleName());
 		
 		if (oCbRequest.getClass().getSimpleName().equals("CreditRequest")) {
 			CreditRequest req = (CreditRequest) oCbRequest;

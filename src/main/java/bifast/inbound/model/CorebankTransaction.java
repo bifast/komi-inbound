@@ -61,8 +61,8 @@ public class CorebankTransaction {
 	@Column(length=2000)
 	private String fullTextRequest;
 
-	@Column(length=50)
-	private String settlBizmsgidr;
+//	@Column(length=50)
+//	private String settlBizmsgidr;
 	
 	
 	public Long getId() {
@@ -193,13 +193,13 @@ public class CorebankTransaction {
 		this.fullTextRequest = fullTextRequest;
 	}
 
-	public String getSettlBizmsgidr() {
-		return settlBizmsgidr;
-	}
-
-	public void setSettlBizmsgidr(String settlBizmsgidr) {
-		this.settlBizmsgidr = settlBizmsgidr;
-	}
+//	public String getSettlBizmsgidr() {
+//		return settlBizmsgidr;
+//	}
+//
+//	public void setSettlBizmsgidr(String settlBizmsgidr) {
+//		this.settlBizmsgidr = settlBizmsgidr;
+//	}
 
 	public String getReason() {
 		return reason;
