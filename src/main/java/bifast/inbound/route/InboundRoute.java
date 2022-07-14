@@ -4,13 +4,13 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import bifast.inbound.processor.CheckRequestMsgProcessor;
+import bifast.inbound.processor.CheckRequestMsgProc;
 
 
 @Component
 public class InboundRoute extends RouteBuilder {
 
-	@Autowired private CheckRequestMsgProcessor checkRequestMsgProcessor;
+	@Autowired private CheckRequestMsgProc checkRequestMsgProcessor;
 	
 
 	@Override
@@ -18,7 +18,6 @@ public class InboundRoute extends RouteBuilder {
 		
 		from("direct:receive").routeId("komi.inboundRoute")
 			.process(checkRequestMsgProcessor) 
-			.log("[${exchangeProperty.msgName}:${exchangeProperty.prop_process_data.endToEndId}] received.")
 		
 			.choice().id("komi.dispatcher")
 

@@ -20,7 +20,7 @@ public class SettlementRoute extends RouteBuilder {
 	@Autowired private CreditTransferRepository ctRepo;
 	@Autowired private Config config;
 	@Autowired private SaveSettlementMessageProcessor saveSettlement;
-	@Autowired private SettlementDebitProcessor settlementDebitProcessor;
+	@Autowired private SettlementDebitProc settlementDebitProcessor;
 
 	private static Logger logger = LoggerFactory.getLogger(SettlementRoute.class);
 

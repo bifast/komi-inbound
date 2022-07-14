@@ -18,6 +18,7 @@ public class JacksonDataFormatService {
 		jdf.setInclude("NON_EMPTY");
 		jdf.enableFeature(SerializationFeature.WRAP_ROOT_VALUE);
 		jdf.enableFeature(DeserializationFeature.UNWRAP_ROOT_VALUE);
+		jdf.disableFeature(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		return jdf;
 	}
 	
@@ -28,6 +29,7 @@ public class JacksonDataFormatService {
 		jdf.setInclude("NON_NULL");
 		jdf.setInclude("NON_EMPTY");
 		jdf.enableFeature(SerializationFeature.WRAP_ROOT_VALUE);
+		jdf.disableFeature(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		return jdf;
 	}
 	
@@ -38,6 +40,7 @@ public class JacksonDataFormatService {
 		jdf.setInclude("NON_NULL");
 		jdf.setInclude("NON_EMPTY");
 		jdf.enableFeature(DeserializationFeature.UNWRAP_ROOT_VALUE);
+		jdf.disableFeature(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		return jdf;
 	}
 	
@@ -45,6 +48,7 @@ public class JacksonDataFormatService {
 		JacksonDataFormat jdf = new JacksonDataFormat(unmarshalType);
 		jdf.setInclude("NON_NULL");
 		jdf.setInclude("NON_EMPTY");
+		jdf.disableFeature(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		return jdf;
 	}
 
@@ -52,6 +56,7 @@ public class JacksonDataFormatService {
 		JacksonDataFormat jdf = new JacksonDataFormat(unmarshalType);
 		jdf.setInclude("NON_NULL");
 		jdf.setInclude("NON_EMPTY");
+		jdf.disableFeature(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 		jdf.setPrettyPrint(true);
 		return jdf;
 	}

@@ -23,7 +23,14 @@ public class NotificationRoute extends RouteBuilder{
 	public void configure() throws Exception {
 
 		JacksonDataFormat portalJdf = jdfService.wrapRoot(PortalApiPojo.class);
-		
+
+		onException(Exception.class)
+			.handled(true)
+			.maximumRedeliveries(2).redeliveryDelay(5000)
+    		.log(LoggingLevel.ERROR, "komi.portalnotif", "Error Log-notif ${body}")
+    		.log(LoggingLevel.ERROR, "${exception.stacktrace}")
+			;
+
 		from("direct:proxynotif").routeId("komi.prxnotif")
 			.log("Proxy Port Notification")
 			.process(proxyNotifProc)
@@ -39,7 +46,7 @@ public class NotificationRoute extends RouteBuilder{
 		
 		
 		from("seda:portalnotif").routeId("komi.portalnotif")
-			
+		
 			.process(portalLogProcessor)
 			.marshal(portalJdf)
 //			.log(LoggingLevel.DEBUG, "komi.portalnotif", "Notif ke portal: ${body}")

@@ -14,26 +14,28 @@ import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.pojo.flat.FlatPacs002Pojo;
 import bifast.inbound.repository.CreditTransferRepository;
 import bifast.inbound.repository.SettlementRepository;
+import bifast.inbound.service.CallRouteService;
 
 @Component
 public class SaveSettlementMessageProcessor implements Processor {
 	@Autowired private CreditTransferRepository ctRepo;
 	@Autowired private SettlementRepository settlementRepo;
+	@Autowired private CallRouteService routeService;
 
 //	private static Logger logger = LoggerFactory.getLogger(SaveSettlementMessageProcessor.class);
 
 	public void process(Exchange exchange) throws Exception {
-		 
+
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
+
 		FlatPacs002Pojo flatSttl = (FlatPacs002Pojo) processData.getBiRequestFlat();
 
-		String fullReqMsg = exchange.getMessage().getHeader("hdr_frBI_jsonzip",String.class);
-		
 		Settlement sttl = new Settlement();
 		sttl.setSettlBizMsgId(flatSttl.getBizMsgIdr());
 		sttl.setOrgnlEndToEndId(flatSttl.getOrgnlEndToEndId());
 		sttl.setReceiveDate(LocalDateTime.now());
-		sttl.setFullMessage(fullReqMsg);
+		
+		sttl.setFullMessage(routeService.encryptBiRequest(exchange));
 		
 		sttl.setDbtrBank(flatSttl.getDbtrAgtFinInstnId());
 		sttl.setCrdtBank(flatSttl.getCdtrAgtFinInstnId());

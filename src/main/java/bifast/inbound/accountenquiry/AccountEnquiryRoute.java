@@ -32,7 +32,7 @@ public class AccountEnquiryRoute extends RouteBuilder {
 	 		.log(LoggingLevel.DEBUG, "komi.accountenq", "[${exchangeProperty.prop_process_data.inbMsgName}:${exchangeProperty.prop_process_data.endToEndId}] selesai call AE corebank")
 			.process(isoAEResponsePrc)
 			
-			.to("seda:save_ae?exchangePattern=InOnly")
+//			.to("seda:save_ae?exchangePattern=InOnly")
 		
 			.removeHeaders("ae_*")
 		;

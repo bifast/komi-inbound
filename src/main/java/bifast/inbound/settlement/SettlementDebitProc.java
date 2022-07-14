@@ -20,7 +20,7 @@ import bifast.inbound.repository.ChannelTransactionRepository;
 import bifast.inbound.service.RefUtils;
 
 @Component
-public class SettlementDebitProcessor implements Processor {
+public class SettlementDebitProc implements Processor {
 	@Autowired private ChannelTransactionRepository chnlTrnsRepo;
 	@Autowired private Config config;
 
@@ -33,7 +33,7 @@ public class SettlementDebitProcessor implements Processor {
 	@Value("${komi.isoadapter.txid}")
 	String txid;
 
-	private static Logger logger = LoggerFactory.getLogger(SettlementDebitProcessor.class);
+	private static Logger logger = LoggerFactory.getLogger(SettlementDebitProc.class);
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -42,7 +42,7 @@ public class SettlementDebitProcessor implements Processor {
 		FlatPacs002Pojo flatSttl = (FlatPacs002Pojo) processData.getBiRequestFlat();
 
 		CreditTransfer ct = exchange.getProperty("pr_orgnlCT", CreditTransfer.class);
-		logger.debug("OrgnlCT.req_bizmsgidr: " + ct.getCrdtTrnRequestBizMsgIdr());
+		logger.debug("[Settl:" + processData.getEndToEndId() + "] OrgnlCT.req_bizmsgidr: " + ct.getCrdtTrnRequestBizMsgIdr());
 
 		SettlementRequest sttlRequest = new SettlementRequest();
 

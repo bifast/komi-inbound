@@ -14,13 +14,14 @@ import bifast.inbound.pojo.FaultPojo;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
 import bifast.inbound.repository.AccountEnquiryRepository;
+import bifast.inbound.service.CallRouteService;
 import bifast.library.iso20022.custom.BusinessMessage;
 
 @Component
 public class SaveAccountEnquiryProcessor implements Processor {
 
-	@Autowired
-	private AccountEnquiryRepository accountEnquiryRepo;
+	@Autowired private AccountEnquiryRepository accountEnquiryRepo;
+	@Autowired private CallRouteService callRouteService;
 
 //	@SuppressWarnings("static-access")
 	@Override
@@ -32,7 +33,7 @@ public class SaveAccountEnquiryProcessor implements Processor {
 
 		AccountEnquiry ae = new AccountEnquiry();
 		
-		String fullRequestMesg = exchange.getProperty("prop_frBI_jsonzip",String.class);
+		String fullRequestMesg = callRouteService.encryptBiRequest(exchange);
 		String fullResponseMesg = exchange.getMessage().getHeader("hdr_toBI_jsonzip", String.class);
 			
 		ae.setAccountNo(flatRequest.getCreditorAccountNo());

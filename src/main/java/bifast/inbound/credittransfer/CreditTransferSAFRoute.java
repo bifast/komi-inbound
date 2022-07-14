@@ -2,33 +2,25 @@ package bifast.inbound.credittransfer;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import bifast.inbound.credittransfer.processor.CTCorebankRequestProcessor;
 import bifast.inbound.credittransfer.processor.InitiateCTJobProcessor;
-import bifast.inbound.credittransfer.processor.SettlementRequestProc;
-import bifast.inbound.service.JacksonDataFormatService;
-import bifast.library.iso20022.custom.BusinessMessage;
+import bifast.inbound.credittransfer.processor.CbSettlementRequestProc;
 
 @Component
 public class CreditTransferSAFRoute extends RouteBuilder {
-	@Autowired private JacksonDataFormatService jdfService;
+//	@Autowired private JacksonDataFormatService jdfService;
 	@Autowired private CTCorebankRequestProcessor ctRequestProcessor;
-	@Autowired private SettlementRequestProc settlementRequestPrc;
+	@Autowired private CbSettlementRequestProc settlementRequestPrc;
 	@Autowired private InitiateCTJobProcessor initCTJobProcessor;
 	
 	@Override
 	public void configure() throws Exception {
 		
-		JacksonDataFormat businessMessageJDF = jdfService.wrapUnwrapRoot(BusinessMessage.class);
+//		JacksonDataFormat businessMessageJDF = jdfService.wrapUnwrapRoot(BusinessMessage.class);
 
-//		onException(CTSAFException.class).routeId("ctsaf.onException")
-//			.handled(true)
-//			.to("controlbus:route?routeId=komi.ct.saf&action=suspend&async=true")
-//		;
-		
 		from("sql:select kct.id , "
 				+ "kct.komi_trns_id, "
 				+ "kct.req_bizmsgid, "
@@ -38,27 +30,18 @@ public class CreditTransferSAFRoute extends RouteBuilder {
 				+ "from kc_credit_transfer kct "
 				+ "where kct.cb_status = 'PENDING' "
 				+ "and kct.sttl_bizmsgid = 'RECEIVED' "
-//				+ "limit 20 "
-				+ "?delay=10000"
+				+ "?delay=8000"
 //				+ "&sendEmptyMessageWhenIdle=true"
 				)
 			.routeId("komi.ct.saf")
 						
-			// selesai dan matikan router jika tidak ada lagi SAF
-//			.filter().simple("${body} == null")
-//				.throwException(CTSAFException.class, "CT SAF Selesai.")			  
-//			.end()	
-
-			// ***************** //
-			
-//			.setHeader("ctsaf_qryresult", simple("${body}"))
 			.setProperty("ctsaf_qryresult", simple("${body}"))
 			.log("[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Submit incoming CreditTransfer started.")
 			
-			.setBody(simple("${exchangeProperty.ctsaf_qryresult[CT_MSG]}"))
-			.unmarshal().base64().unmarshal().zipDeflater()
-			.unmarshal(businessMessageJDF)
-			.setHeader("ctsaf_orgnCdTrns", simple("${body}"))
+//			.setBody(simple("${exchangeProperty.ctsaf_qryresult[CT_MSG]}"))
+//			.unmarshal().base64().unmarshal().zipDeflater()
+//			.unmarshal(businessMessageJDF)
+//			.setHeader("ctsaf_orgnCdTrns", simple("${body}"))
 
 			.process(initCTJobProcessor)  // hdr_process_data
 
@@ -92,23 +75,28 @@ public class CreditTransferSAFRoute extends RouteBuilder {
 							+ "set cb_status = 'ERROR', reversal = 'PENDING' "
 							+ "where id = :#${exchangeProperty.ctsaf_qryresult[id]}")
 				.endChoice()
+				
 				.when().simple("${body.status} == 'ACTC'")
 					.log(LoggingLevel.DEBUG,"komi.ct.saf", "[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] CT corebank Accepted")
 					.setProperty("ctsaf_settlement", constant("YES"))
 					.to("sql:update kc_credit_transfer "
 							+ "set cb_status = 'DONE' "
 							+ "where id = :#${exchangeProperty.ctsaf_qryresult[id]}")
-					.to("direct:post_settlement")
+//					.to("direct:post_settlement")
+					.log(LoggingLevel.DEBUG,"komi.settlement.inbound", "[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Akan post settlement")
+					.process(settlementRequestPrc)
+					.to("direct:isoadpt-sttl")
+
 				.endChoice()
 			.end()
 							
 		;
 
-		from ("direct:post_settlement").routeId("komi.settlement.inbound")
-			.log(LoggingLevel.DEBUG,"komi.settlement.inbound", "[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Akan post settlement")
-			.process(settlementRequestPrc)
-			.to("direct:isoadpt-sttl")
-		;
+//		from ("direct:post_settlement").routeId("komi.settlement.inbound")
+//			.log(LoggingLevel.DEBUG,"komi.settlement.inbound", "[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Akan post settlement")
+//			.process(settlementRequestPrc)
+//			.to("direct:isoadpt-sttl")
+//		;
 
 	}
 

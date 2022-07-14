@@ -9,7 +9,14 @@ import org.apache.camel.MessageHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
+
 import bifast.inbound.config.Config;
+import bifast.library.iso20022.custom.BusinessMessage;
 
 @Service
 public class UtilService {
@@ -55,6 +62,15 @@ public class UtilService {
 				elapsed = msg.getElapsed();
 		}
 		return elapsed;
+	}
+
+	public String serializeBusinessMassage (BusinessMessage bm) throws JsonProcessingException {
+	    ObjectMapper mapper = new ObjectMapper();
+	    mapper.registerModule(new JaxbAnnotationModule());
+	    mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+	    mapper.setSerializationInclusion(Include.NON_NULL);
+		String str = mapper.writeValueAsString(bm);
+		return str;
 	}
 
 //	public LocalDateTime getTimestampFromMessageHistory (List<MessageHistory> list, String nodeId) {

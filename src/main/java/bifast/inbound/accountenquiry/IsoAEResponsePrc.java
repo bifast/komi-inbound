@@ -2,8 +2,6 @@ package bifast.inbound.accountenquiry;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +26,7 @@ public class IsoAEResponsePrc implements Processor {
 	@Autowired
 	private UtilService utilService;
 	
-	private static Logger logger = LoggerFactory.getLogger(IsoAEResponsePrc.class);
+//	private static Logger logger = LoggerFactory.getLogger(IsoAEResponsePrc.class);
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -45,7 +43,7 @@ public class IsoAEResponsePrc implements Processor {
 		FaultPojo fault = new FaultPojo();
 		
 		Object oResp = exchange.getMessage().getBody(Object.class);
-		logger.debug("response class: " + oResp.getClass().getSimpleName());
+//		logger.debug("response class: " + oResp.getClass().getSimpleName());
 		
 		if (oResp.getClass().getSimpleName().equals("AccountEnquiryInboundResponse")) {
 			aeResp = (AccountEnquiryInboundResponse) oResp;

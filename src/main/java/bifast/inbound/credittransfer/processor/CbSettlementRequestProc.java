@@ -22,7 +22,7 @@ import bifast.inbound.service.RefUtils;
 import bifast.library.iso20022.custom.BusinessMessage;
 
 @Component
-public class SettlementRequestProc implements Processor {
+public class CbSettlementRequestProc implements Processor {
 	@Autowired private CallRouteService routeService;
 	@Autowired private Config config;
 	@Autowired private CorebankTransactionRepository cbRepo;
@@ -50,10 +50,10 @@ public class SettlementRequestProc implements Processor {
 		String e2eid = String.valueOf(arr.get("e2e_id"));
 
 		List<Settlement> setts = settlementRepo.findByOrgnlEndToEndId(e2eid);
-		if (setts.size()>0)
+		if (setts.size()>0) 
 			exchange.getMessage().setBody(setts.get(0).getFullMessage());
 		BusinessMessage settlementMsg = routeService.decrypt_unmarshal(exchange);
-//		BusinessMessage settlementMsg = exchange.getMessage().getBody(BusinessMessage.class);
+
 		FlatPacs002Pojo flatMsg = flatMessageService.flatteningPacs002(settlementMsg);
 
 		SettlementRequest sttlRequest = new SettlementRequest();

@@ -68,12 +68,12 @@ public class PendingSttlSAFRoute extends RouteBuilder {
 				
 				.log("[PymSts:${exchangeProperty.pr_psrequest.endToEndId}] CIHUB response: ${body}")
 	
-				.setHeader("tmp_body", simple("${body}"))
-				.marshal().zipDeflater().marshal().base64()
-				.setProperty("prop_frBI_jsonzip", simple("${body}"))
-				.setBody(simple("${header.tmp_body}"))	
+//				.setHeader("tmp_body", simple("${body}"))
+//				.marshal().zipDeflater().marshal().base64()
+//				.setProperty("prop_frBI_jsonzip", simple("${body}"))
+//				.setBody(simple("${header.tmp_body}"))	
 				.unmarshal(businessMessageJDF)
-				.setProperty("prop_frBIobj", simple("${body}"))
+//				.setProperty("prop_frBIobj", simple("${body}"))
 
 				.process(new Processor() {
 					public void process(Exchange exchange) throws Exception {
@@ -88,7 +88,6 @@ public class PendingSttlSAFRoute extends RouteBuilder {
 			.endDoTry()
 			.doCatch(java.net.SocketTimeoutException.class)
 				.log(LoggingLevel.ERROR, "[PymSts:${exchangeProperty.pr_psrequest.endToEndId}] CI-HUB TIMEOUT.")
-//		    	.log(LoggingLevel.ERROR, "${exception.stacktrace}")
 				.setProperty("pr_psresponse", constant("TIMEOUT"))
 				.setProperty("pr_psreason", constant("U900"))
 			.doCatch(Exception.class)

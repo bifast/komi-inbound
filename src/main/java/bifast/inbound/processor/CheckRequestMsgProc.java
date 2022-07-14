@@ -1,6 +1,5 @@
 package bifast.inbound.processor;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 import org.apache.camel.Exchange;
@@ -17,21 +16,24 @@ import bifast.inbound.pojo.flat.FlatPacs002Pojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
 import bifast.inbound.pojo.flat.FlatPrxy901Pojo;
 import bifast.inbound.service.FlattenIsoMessageService;
-import bifast.inbound.service.RefUtils;
 import bifast.library.iso20022.custom.BusinessMessage;
 
 @Component
-public class CheckRequestMsgProcessor implements Processor {
+public class CheckRequestMsgProc implements Processor {
 	@Autowired private FlattenIsoMessageService flatMsgService;
 	
-	
-	private static Logger logger = LoggerFactory.getLogger(CheckRequestMsgProcessor.class);
+	private static Logger logger = LoggerFactory.getLogger(CheckRequestMsgProc.class);
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		BusinessMessage inputMsg = exchange.getMessage().getBody(BusinessMessage.class);
 
-		ProcessDataPojo processData = new ProcessDataPojo();
+//		ProcessDataPojo processData = new ProcessDataPojo();
+		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
+
+		processData.setBiRequestMsg(inputMsg);
+//		processData.setStartTime(Instant.now());
+//		processData.setKomiTrnsId(RefUtils.genKomiTrnsId());
 
 		String trnType = inputMsg.getAppHdr().getBizMsgIdr().substring(16,19);
 			
@@ -48,7 +50,6 @@ public class CheckRequestMsgProcessor implements Processor {
 				processData.setEndToEndId(flat002.getOrgnlEndToEndId());
 				exchange.setProperty("msgName", "Settl");
 			}
-
 		}
 
 		else if (inputMsg.getAppHdr().getMsgDefIdr().startsWith("prxy.901")) {
@@ -79,7 +80,6 @@ public class CheckRequestMsgProcessor implements Processor {
 				processData.setInbMsgName("RevCT");
 				exchange.setProperty("msgName", "RevCT");
 			}
-			
 		}
 
 		else if (inputMsg.getAppHdr().getMsgDefIdr().startsWith("admi.004")) {
@@ -99,17 +99,14 @@ public class CheckRequestMsgProcessor implements Processor {
 			processData.setInbMsgName("MsgRjct");
 			exchange.setProperty("msgName", "MsgRjct");
 		}
-
-		processData.setBiRequestMsg(inputMsg);
-		processData.setStartTime(Instant.now());
-		processData.setKomiTrnsId(RefUtils.genKomiTrnsId());
-		
-		logger.debug("KomiTransId: " + processData.getKomiTrnsId());
+	
+//		logger.debug("[" + processData.getInbMsgName() + ":" + processData.getEndToEndId() +
+//				"] KomiTransId: " + processData.getKomiTrnsId());
 		
 		processData.setReceivedDt(LocalDateTime.now());
 
 		exchange.setProperty("starttime", LocalDateTime.now());
-		exchange.setProperty("prop_process_data", processData);
+//		exchange.setProperty("prop_process_data", processData);
 		exchange.setProperty("pr_komitrnsid", processData.getKomiTrnsId());
 	
 	}

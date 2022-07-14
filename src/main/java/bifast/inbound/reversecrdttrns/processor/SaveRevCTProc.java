@@ -13,12 +13,14 @@ import bifast.inbound.model.CreditTransfer;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
 import bifast.inbound.repository.CreditTransferRepository;
+import bifast.inbound.service.CallRouteService;
 import bifast.library.iso20022.custom.BusinessMessage;
 
 @Component
 public class SaveRevCTProc implements Processor {
 
 	@Autowired private CreditTransferRepository creditTrnRepo;
+	@Autowired private CallRouteService callRouteService;
 
 	@Override
 	public void process(Exchange exchange) throws Exception {
@@ -30,7 +32,7 @@ public class SaveRevCTProc implements Processor {
 
 		ct.setKomiTrnsId(processData.getKomiTrnsId());
 		
-		String fullReqMsg = exchange.getProperty("prop_frBI_jsonzip",String.class);
+		String fullReqMsg = callRouteService.encryptBiRequest(exchange);
 		String fullRespMsg = exchange.getProperty("prop_toBI_jsonzip",String.class);
 		
 		ct.setFullRequestMessage(fullReqMsg);
