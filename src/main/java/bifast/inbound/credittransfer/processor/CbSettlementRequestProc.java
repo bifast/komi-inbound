@@ -50,9 +50,9 @@ public class CbSettlementRequestProc implements Processor {
 		String e2eid = String.valueOf(arr.get("e2e_id"));
 
 		List<Settlement> setts = settlementRepo.findByOrgnlEndToEndId(e2eid);
+		BusinessMessage settlementMsg = null;
 		if (setts.size()>0) 
-			exchange.getMessage().setBody(setts.get(0).getFullMessage());
-		BusinessMessage settlementMsg = routeService.decrypt_unmarshal(exchange);
+			settlementMsg = routeService.decryptBusinessMessage(setts.get(0).getFullMessage());
 
 		FlatPacs002Pojo flatMsg = flatMessageService.flatteningPacs002(settlementMsg);
 

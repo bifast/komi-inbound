@@ -34,10 +34,6 @@ public class CTCorebankRequestProcessor implements Processor {
 		
 		FlatPacs008Pojo biReq = (FlatPacs008Pojo) processData.getBiRequestFlat();
 
-
-//		@SuppressWarnings("unchecked")
-//		HashMap<String, Object> arr = exchange.getProperty("ctsaf_qryresult", HashMap.class);
-
 		CreditRequest cbRequest = new CreditRequest();
 
 		RefUtils.Ref ref = RefUtils.newRef();

@@ -41,7 +41,6 @@ public class RevCTRejectResponseProcessor implements Processor {
 		else  // CT Not Found
 			resp.setAdditionalInfo("Transaksi asal tidak ditemukan");
 				
-		
 		resp.setCreditorAccountIdType(flatRequest.getCreditorAccountType());
 
 		resp.setCreditorResidentialStatus(flatRequest.getCreditorResidentialStatus());  // 01 RESIDENT
@@ -53,22 +52,19 @@ public class RevCTRejectResponseProcessor implements Processor {
 			resp.setCreditorName(flatRequest.getCreditorName());
 
 
-		//////////
-//		CreditTransferTransaction39 biReq =  reqBusMesg.getDocument().getFiToFICstmrCdtTrf().getCdtTrfTxInf().get(0);
-		BusinessMessage reqBusMesg = exchange.getProperty("prop_frBIobj", BusinessMessage.class);
-
 		String komiTrnsId = exchange.getProperty("pr_komitrnsid", String.class);
 		String msgId = utilService.genMsgId("011", komiTrnsId);
-		
 		resp.setMsgId(msgId);
-
-		FIToFIPaymentStatusReportV10 respMsg = pacs002Service.creditTransferRequestResponse(resp, reqBusMesg);
-		Document doc = new Document();
-		doc.setFiToFIPmtStsRpt(respMsg);
 
 		String bizMsgId = utilService.genRfiBusMsgId("011", komiTrnsId);
 		BusinessApplicationHeaderV01 appHdr = appHdrService.getAppHdr("pacs.002.001.10", bizMsgId);
 		appHdr.setBizSvc("CLEAR");
+
+		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
+
+		FIToFIPaymentStatusReportV10 respMsg = pacs002Service.creditTransferRequestResponse(resp, processData.getBiRequestMsg());
+		Document doc = new Document();
+		doc.setFiToFIPmtStsRpt(respMsg);
 
 		BusinessMessage respBusMesg = new BusinessMessage();
 		respBusMesg.setAppHdr(appHdr);
@@ -76,9 +72,8 @@ public class RevCTRejectResponseProcessor implements Processor {
 
 		exchange.getIn().setBody(respBusMesg);
 		
-		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
 		processData.setBiResponseMsg(respBusMesg);
-		exchange.setProperty("prop_process_data", processData);
+//		exchange.setProperty("prop_process_data", processData);
 		
 	}
 }

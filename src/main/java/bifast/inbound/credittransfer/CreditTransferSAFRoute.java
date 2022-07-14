@@ -38,11 +38,6 @@ public class CreditTransferSAFRoute extends RouteBuilder {
 			.setProperty("ctsaf_qryresult", simple("${body}"))
 			.log("[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Submit incoming CreditTransfer started.")
 			
-//			.setBody(simple("${exchangeProperty.ctsaf_qryresult[CT_MSG]}"))
-//			.unmarshal().base64().unmarshal().zipDeflater()
-//			.unmarshal(businessMessageJDF)
-//			.setHeader("ctsaf_orgnCdTrns", simple("${body}"))
-
 			.process(initCTJobProcessor)  // hdr_process_data
 
 			.process(ctRequestProcessor)
@@ -82,7 +77,7 @@ public class CreditTransferSAFRoute extends RouteBuilder {
 					.to("sql:update kc_credit_transfer "
 							+ "set cb_status = 'DONE' "
 							+ "where id = :#${exchangeProperty.ctsaf_qryresult[id]}")
-//					.to("direct:post_settlement")
+
 					.log(LoggingLevel.DEBUG,"komi.settlement.inbound", "[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Akan post settlement")
 					.process(settlementRequestPrc)
 					.to("direct:isoadpt-sttl")
@@ -91,12 +86,6 @@ public class CreditTransferSAFRoute extends RouteBuilder {
 			.end()
 							
 		;
-
-//		from ("direct:post_settlement").routeId("komi.settlement.inbound")
-//			.log(LoggingLevel.DEBUG,"komi.settlement.inbound", "[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Akan post settlement")
-//			.process(settlementRequestPrc)
-//			.to("direct:isoadpt-sttl")
-//		;
 
 	}
 

@@ -25,9 +25,8 @@ public class InitiateCTJobProcessor implements Processor{
 		@SuppressWarnings("unchecked")
 		HashMap<String, Object> arr = exchange.getProperty("ctsaf_qryresult",HashMap.class);
 
-//		BusinessMessage orgnlCTRequest = exchange.getMessage().getHeader("ctsaf_orgnCdTrns", BusinessMessage.class);
-		exchange.getMessage().setBody(String.valueOf(arr.get("ct_msg")));
-		BusinessMessage orgnlCTRequest = routeService.decrypt_unmarshal(exchange); 
+		BusinessMessage orgnlCTRequest = routeService.decryptBusinessMessage(String.valueOf(arr.get("ct_msg"))); 
+		
 		ProcessDataPojo processData = new ProcessDataPojo();
 		FlatPacs008Pojo flat008 = flatMsgService.flatteningPacs008(orgnlCTRequest); 
 		

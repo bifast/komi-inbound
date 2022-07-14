@@ -33,9 +33,6 @@ public class RevCTAcceptedProcessor implements Processor {
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
 		FlatPacs008Pojo flatRequest = (FlatPacs008Pojo) processData.getBiRequestFlat();
 		
-		BusinessMessage reqBusMesg = exchange.getProperty("prop_frBIobj", BusinessMessage.class);
-//		CreditTransferTransaction39 biReq =  reqBusMesg.getDocument().getFiToFICstmrCdtTrf().getCdtTrfTxInf().get(0);
-
 		String msgType = processData.getBiRequestMsg().getAppHdr().getBizMsgIdr().substring(16, 19);
 
 		String bizMsgId = utilService.genRfiBusMsgId(msgType, processData.getKomiTrnsId());
@@ -45,11 +42,9 @@ public class RevCTAcceptedProcessor implements Processor {
 		resp.setMsgId(msgId);
 		resp.setCreditorAccountIdType(flatRequest.getCreditorAccountType());
 
-		
 		resp.setStatus("ACTC");
 		resp.setReason("U000");
 		
-
 		resp.setCreditorResidentialStatus(flatRequest.getCreditorResidentialStatus());  // 01 RESIDENT
 		resp.setCreditorTown(flatRequest.getCreditorTownName());  
 		resp.setCreditorType(flatRequest.getCreditorType());
@@ -59,12 +54,10 @@ public class RevCTAcceptedProcessor implements Processor {
 		if (null != flatRequest.getCreditorName())
 			resp.setCreditorName(flatRequest.getCreditorName());
 		
-		FIToFIPaymentStatusReportV10 respMsg = pacs002Service.creditTransferRequestResponse(resp, reqBusMesg);
+		FIToFIPaymentStatusReportV10 respMsg = pacs002Service.creditTransferRequestResponse(resp, processData.getBiRequestMsg());
 		Document doc = new Document();
 		doc.setFiToFIPmtStsRpt(respMsg);
 		
-//		String orignBank = flatRequest.getDebtorAgentId();
-
 		BusinessApplicationHeaderV01 appHdr = appHdrService.getAppHdr("pacs.002.001.10", bizMsgId);
 		appHdr.setBizSvc("CLEAR");
 		
@@ -73,7 +66,7 @@ public class RevCTAcceptedProcessor implements Processor {
 		respBusMesg.setDocument(doc);
 		
 		processData.setBiResponseMsg(respBusMesg);
-		exchange.setProperty("prop_process_data", processData);
+//		exchange.setProperty("prop_process_data", processData);
 		exchange.getIn().setBody(respBusMesg);
 
 	}

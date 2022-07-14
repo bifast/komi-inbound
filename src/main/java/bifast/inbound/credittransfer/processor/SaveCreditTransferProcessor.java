@@ -32,7 +32,7 @@ public class SaveCreditTransferProcessor implements Processor {
 
 		ct.setKomiTrnsId(processData.getKomiTrnsId());
 		
-		String fullReqMsg = callRouteService.encryptBiRequest(exchange);
+		String fullReqMsg = callRouteService.encryptBusinessMessage(processData.getBiRequestMsg());
 		String fullRespMsg = exchange.getProperty("prop_toBI_jsonzip",String.class);
 		
 		ct.setFullRequestMessage(fullReqMsg);

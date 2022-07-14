@@ -35,7 +35,7 @@ public class SaveSettlementMessageProcessor implements Processor {
 		sttl.setOrgnlEndToEndId(flatSttl.getOrgnlEndToEndId());
 		sttl.setReceiveDate(LocalDateTime.now());
 		
-		sttl.setFullMessage(routeService.encryptBiRequest(exchange));
+		sttl.setFullMessage(routeService.encryptBusinessMessage(processData.getBiRequestMsg()));
 		
 		sttl.setDbtrBank(flatSttl.getDbtrAgtFinInstnId());
 		sttl.setCrdtBank(flatSttl.getCdtrAgtFinInstnId());

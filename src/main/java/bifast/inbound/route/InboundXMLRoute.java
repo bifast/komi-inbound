@@ -43,7 +43,6 @@ public class InboundXMLRoute extends RouteBuilder {
 			.setBody(simple("${header.hdr_tmp}"))
 
 			.unmarshal(jaxb)	
-			.setProperty("prop_frBIobj", simple("${body}"))
 
 			.to("direct:receive")
 

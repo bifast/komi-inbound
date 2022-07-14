@@ -33,7 +33,7 @@ public class SaveAccountEnquiryProcessor implements Processor {
 
 		AccountEnquiry ae = new AccountEnquiry();
 		
-		String fullRequestMesg = callRouteService.encryptBiRequest(exchange);
+		String fullRequestMesg = callRouteService.encryptBusinessMessage(processData.getBiRequestMsg());
 		String fullResponseMesg = exchange.getMessage().getHeader("hdr_toBI_jsonzip", String.class);
 			
 		ae.setAccountNo(flatRequest.getCreditorAccountNo());

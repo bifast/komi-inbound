@@ -50,7 +50,6 @@ public class InboundJsonRoute extends RouteBuilder {
 			})
 			
 			.unmarshal(jsonBusinessMessageDataFormat)  // ubah ke pojo BusinessMessage
-			.setProperty("prop_frBIobj", simple("${body}"))
 			.to("direct:receive")
 			
 			.filter().simple("${exchangeProperty.prop_process_data.inbMsgName} !in 'Settl, PrxNtf'")

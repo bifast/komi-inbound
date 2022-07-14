@@ -48,9 +48,6 @@ public class CreditTransferProcessor implements Processor {
 		
 		FlatPacs008Pojo flatRequest = (FlatPacs008Pojo) processData.getBiRequestFlat();
 		
-		BusinessMessage reqBusMesg = exchange.getProperty("prop_frBIobj", BusinessMessage.class);
-//		CreditTransferTransaction39 biReq =  reqBusMesg.getDocument().getFiToFICstmrCdtTrf().getCdtTrfTxInf().get(0);
-
 		String msgType = processData.getBiRequestMsg().getAppHdr().getBizMsgIdr().substring(16, 19);
 
 		String msgId = utilService.genMsgId(msgType, processData.getKomiTrnsId());
@@ -71,7 +68,6 @@ public class CreditTransferProcessor implements Processor {
 				resp.setReason(fault.getReasonCode());	
 			}
 			
-
 			if ((resp.getReason().equals("U101") && (resp.getCreditorAccountIdType().equals("SVGS"))))
 				resp.setReason("53");
 			else if (resp.getReason().equals("U101"))
@@ -96,7 +92,7 @@ public class CreditTransferProcessor implements Processor {
 		if (null != flatRequest.getCreditorName())
 			resp.setCreditorName(flatRequest.getCreditorName());
 		
-		FIToFIPaymentStatusReportV10 respMsg = pacs002Service.creditTransferRequestResponse(resp, reqBusMesg);
+		FIToFIPaymentStatusReportV10 respMsg = pacs002Service.creditTransferRequestResponse(resp, processData.getBiRequestMsg());
 		Document doc = new Document();
 		doc.setFiToFIPmtStsRpt(respMsg);
 		

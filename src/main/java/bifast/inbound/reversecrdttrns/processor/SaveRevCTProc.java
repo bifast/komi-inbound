@@ -32,8 +32,10 @@ public class SaveRevCTProc implements Processor {
 
 		ct.setKomiTrnsId(processData.getKomiTrnsId());
 		
-		String fullReqMsg = callRouteService.encryptBiRequest(exchange);
-		String fullRespMsg = exchange.getProperty("prop_toBI_jsonzip",String.class);
+//		String fullReqMsg = callRouteService.encryptBiRequest(exchange);
+		String fullReqMsg = callRouteService.encryptBusinessMessage(processData.getBiRequestMsg());
+//		String fullRespMsg = exchange.getProperty("prop_toBI_jsonzip",String.class);
+		String fullRespMsg = callRouteService.encryptBusinessMessage(exchange.getMessage().getBody(BusinessMessage.class));
 		
 		ct.setFullRequestMessage(fullReqMsg);
 		ct.setFullResponseMsg(fullRespMsg);
