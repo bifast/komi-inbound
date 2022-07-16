@@ -11,7 +11,7 @@ import bifast.inbound.model.Settlement;
 @Repository
 public interface SettlementRepository extends JpaRepository<Settlement, Long> {
 
-	public List<Settlement> findByOrgnlCTBizMsgId (String reqBizMsgId);
+//	public List<Settlement> findByOrgnlCTBizMsgId (String reqBizMsgId);
 	public List<Settlement> findByOrgnlEndToEndId (String orgnlEndToEndId);
 	
 }

@@ -66,7 +66,8 @@ public class SettlementDebitProc implements Processor {
 		else
 			sttlRequest.setCounterParty(ct.getOriginatingBank());
 
-		Optional<ChannelTransaction> oChnlTrns = chnlTrnsRepo.findByKomiTrnsId(ct.getKomiTrnsId());
+//		Optional<ChannelTransaction> oChnlTrns = chnlTrnsRepo.findByKomiTrnsId(ct.getKomiTrnsId());
+		Optional<ChannelTransaction> oChnlTrns =chnlTrnsRepo.findById(ct.getKomiTrnsId());
 		if (oChnlTrns.isPresent())
 			sttlRequest.setOriginalNoRef(oChnlTrns.get().getChannelRefId());
 				

@@ -35,6 +35,9 @@ Bugfix:
 - Antisipasi response AE dari corebank "U999 - Program Call Error"
 - IgnoredJsonProperty kasus pacs002 dengan RltdEndToEndId
 
+16-Juli-2022 (v1.5.2-SNAPSHOT)
+Bugfix:
+- Outbound settlement tidak update di sttl_status table CT
 
 
  

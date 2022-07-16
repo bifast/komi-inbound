@@ -51,9 +51,15 @@ public class SaveSettlementMessageProcessor implements Processor {
 			ct = oct.get();
 			ct.setSettlementConfBizMsgIdr("RECEIVED");
 			ctRepo.save(ct);
-
+			
 			sttl.setOrgnlCTBizMsgId(ct.getCrdtTrnRequestBizMsgIdr());
 			sttl.setKomiTrnsId(ct.getKomiTrnsId());
+			
+			CreditTransfer ct2 = ctRepo.getSuccessByEndToEndId(flatSttl.getOrgnlEndToEndId()).orElse(new CreditTransfer());
+			if (!(Optional.ofNullable(ct2.getSettlementConfBizMsgIdr()).orElse("").equals("RECEIVED"))) {
+				ct.setSettlementConfBizMsgIdr("RECEIVED.");
+				ctRepo.save(ct);
+			}
 		}
 		
 		settlementRepo.save(sttl);

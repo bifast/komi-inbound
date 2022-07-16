@@ -14,7 +14,7 @@ import bifast.inbound.model.CreditTransfer;
 public interface CreditTransferRepository extends JpaRepository<CreditTransfer, Long> {
 
 	public List<CreditTransfer> findAllByCrdtTrnRequestBizMsgIdr (String msgId);
-	public List<CreditTransfer> findAllByCrdtTrnRequestBizMsgIdrAndResponseCode (String msgId, String responseCode);
+//	public List<CreditTransfer> findAllByCrdtTrnRequestBizMsgIdrAndResponseCode (String msgId, String responseCode);
 	public List<CreditTransfer> findAllByEndToEndId (String endToEndId);
 	
 	String qry = "select ct from CreditTransfer ct "
