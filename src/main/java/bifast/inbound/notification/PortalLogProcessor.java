@@ -1,4 +1,4 @@
-package bifast.inbound.accountenquiry;
+package bifast.inbound.notification;
 
 import java.text.DecimalFormat;
 import java.time.Duration;
@@ -11,15 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import bifast.inbound.model.StatusReason;
-import bifast.inbound.notification.LogDataPojo;
-import bifast.inbound.notification.PortalApiPojo;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
 import bifast.inbound.repository.StatusReasonRepository;
 import bifast.library.iso20022.custom.BusinessMessage;
 
 @Component
-public class AEPortalLogProcessor implements Processor{
+public class PortalLogProcessor implements Processor{
 	@Autowired StatusReasonRepository statusReasonRepo;
 	
 //	private static Logger logger = LoggerFactory.getLogger(AEPortalLogProcessor.class);

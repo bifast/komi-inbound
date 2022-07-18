@@ -49,11 +49,7 @@ public class InboundRoute extends RouteBuilder {
 			.end()
 	
 			// kirim log notif ke Portal
-			.filter().simple("${exchangeProperty.msgName} in 'AccEnq,CrdTrn,RevCT' ")
-				.setHeader("hdr_tmpbody", simple("${body}"))
-				.to("seda:portalnotif?exchangePattern=InOnly")
-				.setBody(simple("${header.hdr_tmpbody}"))
-			.end()
+			.wireTap("direct:portalnotif")
 				
 		;
 

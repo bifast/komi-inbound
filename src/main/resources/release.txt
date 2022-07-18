@@ -38,6 +38,7 @@ Bugfix:
 16-Juli-2022 (v1.5.2-SNAPSHOT)
 Bugfix:
 - Outbound settlement tidak update di sttl_status table CT
+- Tambah retry unt portal notification
 
 
  
