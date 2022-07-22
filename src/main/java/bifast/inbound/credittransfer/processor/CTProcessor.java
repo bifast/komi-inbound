@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import bifast.inbound.corebank.isopojo.AccountEnquiryResponse;
 import bifast.inbound.iso20022.AppHeaderService;
-import bifast.inbound.pojo.FaultPojo;
 import bifast.inbound.pojo.Pacs002Seed;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
@@ -21,7 +20,7 @@ import bifast.library.iso20022.head001.BusinessApplicationHeaderV01;
 import bifast.library.iso20022.pacs002.FIToFIPaymentStatusReportV10;
 
 @Component
-public class CreditTransferProcessor implements Processor {
+public class CTProcessor implements Processor {
 
 	@Autowired private AppHeaderService appHdrService;
 	@Autowired private Pacs002MessageService pacs002Service;
@@ -34,17 +33,8 @@ public class CreditTransferProcessor implements Processor {
 
 		String saf = exchange.getProperty("ct_saf", String.class);
 		
-		AccountEnquiryResponse cbResponse = null;
-		FaultPojo fault = null;
-
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
-		Object oCbResp = processData.getCorebankResponse();
-		if (null != oCbResp) {
-			if (oCbResp.getClass().getSimpleName().equals("AccountEnquiryInboundResponse"))
-				cbResponse = (AccountEnquiryResponse) oCbResp;
-			else if (oCbResp.getClass().getSimpleName().equals("FaultPojo"))
-				fault = (FaultPojo) oCbResp;
-		}
+		AccountEnquiryResponse cbResponse = (AccountEnquiryResponse) processData.getCorebankResponse();
 		
 		FlatPacs008Pojo flatRequest = (FlatPacs008Pojo) processData.getBiRequestFlat();
 		
@@ -64,8 +54,6 @@ public class CreditTransferProcessor implements Processor {
 				resp.setStatus(cbResponse.getStatus());
 				resp.setReason(cbResponse.getReason());				
 			} else {
-				resp.setStatus(fault.getResponseCode());
-				resp.setReason(fault.getReasonCode());	
 			}
 			
 			if ((resp.getReason().equals("U101") && (resp.getCreditorAccountIdType().equals("SVGS"))))

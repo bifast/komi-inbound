@@ -1,4 +1,4 @@
-package bifast.inbound.corebank;
+package bifast.inbound.corebank.processor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,8 +31,6 @@ public class SaveCBTransactionProc implements Processor {
 		String msgName = exchange.getMessage().getHeader("cb_msgname", String.class);
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
 		
-		exchange.setProperty("prop_process_data", processData);
-
 		String komiTrnsId = exchange.getProperty("pr_komitrnsid", String.class);
 		
 		String strRequest = exchange.getProperty("cb_request_str", String.class);

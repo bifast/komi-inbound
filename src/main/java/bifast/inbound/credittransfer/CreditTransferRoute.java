@@ -1,7 +1,5 @@
 package bifast.inbound.credittransfer;
 
-
-import org.apache.camel.ExchangePattern;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
@@ -9,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import bifast.inbound.accountenquiry.IsoAERequestPrc;
+import bifast.inbound.credittransfer.processor.CTProcessor;
 import bifast.inbound.credittransfer.processor.CheckSAFStatusProcessor;
-import bifast.inbound.credittransfer.processor.CreditTransferProcessor;
 import bifast.inbound.credittransfer.processor.SaveCreditTransferProcessor;
 import bifast.inbound.processor.DuplicateTransactionValidation;
 import bifast.inbound.service.JacksonDataFormatService;
@@ -19,7 +17,7 @@ import bifast.library.iso20022.custom.BusinessMessage;
 @Component
 public class CreditTransferRoute extends RouteBuilder {
 	@Autowired private CheckSAFStatusProcessor checkSafStatus;
-	@Autowired private CreditTransferProcessor creditTransferProcessor;
+	@Autowired private CTProcessor creditTransferProcessor;
 	@Autowired private DuplicateTransactionValidation duplicationTrnsValidation;
 	@Autowired private JacksonDataFormatService jdfService;
 	@Autowired private SaveCreditTransferProcessor saveCreditTransferProcessor;
@@ -29,17 +27,12 @@ public class CreditTransferRoute extends RouteBuilder {
 	public void configure() throws Exception {
 		JacksonDataFormat businessMessageJDF = jdfService.wrapRoot(BusinessMessage.class);
 		
-		onException(Exception.class)
-			.log("Route level onException")
+		onException(Exception.class).routeId("komi.ct.excp")
 			.log(LoggingLevel.ERROR, "${exception.stacktrace}")
 			.marshal(businessMessageJDF)
-			.setHeader("hdr_tmp", simple("${body}"))
-			.marshal().zipDeflater().marshal().base64()
-			.setProperty("prop_toBI_jsonzip", simple("${body}"))
-			.setBody(simple("${header.hdr_tmp}"))
 			.log(LoggingLevel.DEBUG,"komi.ct","${body}")
 			.handled(true)
-			.to("seda:save_ct?exchangePattern=InOnly")
+			.wireTap("direct:save_ct")
 			.removeHeaders("*")
 		;
 		
@@ -58,27 +51,15 @@ public class CreditTransferRoute extends RouteBuilder {
 
 				// proses sebagai AE request
 				.process(isoAERequestPrc)
-				.to("direct:isoadpt")
-		
-				.choice()
-					.when().simple("${body.class} endsWith 'FaultPojo'")
-						.setHeader("ct_cbsts", constant("ERROR"))
-					.endChoice()
-					.otherwise()
-						.setHeader("ct_cbsts", simple("${body.status}"))
-					.endChoice()
-				.end()
+//				.to("direct:isoadpt")
+				.to("direct:cb_ae")
+				
+				.setHeader("ct_cbsts", simple("${body.status}"))
+
 			.end()
 					
 			.process(creditTransferProcessor)
 			
-			// versi gzip nya unt dicatat di table
-			.setHeader("ct_tmpbody", simple("${body}"))
-			.marshal(businessMessageJDF)
-			.marshal().zipDeflater().marshal().base64()
-			.setProperty("prop_toBI_jsonzip", simple("${body}"))
-			.setBody(simple("${header.ct_tmpbody}"))
-
 			.log(LoggingLevel.DEBUG, "komi.ct", 
 					"[${exchangeProperty.prop_process_data.inbMsgName}:${exchangeProperty.prop_process_data.endToEndId}] saf ${header.ct_saf}, cb_sts ${header.ct_cbsts}")
 
@@ -97,16 +78,13 @@ public class CreditTransferRoute extends RouteBuilder {
 				.end()
 			.end()
 	
-			.to("seda:save_ct?exchangePattern=InOnly")
+			.wireTap("direct:save_ct")
 		
 			.removeHeaders("ct_*")
 
 		;
 	
-		from("seda:save_ct?concurrentConsumers=5").routeId("savect")
-			.setExchangePattern(ExchangePattern.InOnly)
-			.process(saveCreditTransferProcessor)
-		;
+		from("direct:save_ct").routeId("savect").process(saveCreditTransferProcessor);
 
 	}
 }

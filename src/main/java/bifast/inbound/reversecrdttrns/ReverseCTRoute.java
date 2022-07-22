@@ -31,41 +31,31 @@ public class ReverseCTRoute extends RouteBuilder {
 			
 			.filter().simple("${exchangeProperty.pr_revCTCheckRsl} != 'DataMatch'")
 				.log("[${exchangeProperty.msgName}:${exchangeProperty.prop_process_data.endToEndId}] CT asal tidak ketemu atau tidak sesuai.")
-//				.to("direct:rctreject")
 				.process(rejectResponsePrc)
-				.to("seda:save_rct?exchangePattern=InOnly")
-				//TODO lapor admin
+				.wireTap("direct:save_rct")
 			.end()
 			
 			.filter(exchangeProperty("pr_revCTCheckRsl").isEqualTo("DataMatch"))
 
 			.process(isoAERequestPrc)
-			.to("direct:isoadpt")
+//			.to("direct:isoadpt")
+			.to("direct:cb_ae")
 
 			.setProperty("pr_revCTCheckRsl", simple("${body.status}"))
 			.filter().simple("${body.status} != 'ACTC'")
 				.process(rejectResponsePrc)
-				.to("seda:save_rct?exchangePattern=InOnly")
-				//TODO lapor admin
+				.wireTap("direct:save_rct")
 			.end()
 		
 			.filter(exchangeProperty("pr_revCTCheckRsl").isEqualTo("ACTC"))
 
+			
 			.process(rctAccpProcessor)
-			.to("seda:save_rct?exchangePattern=InOnly")			
+			.wireTap("direct:save_rct")
 		;
 
-//		from("direct:rctreject").routeId("komi.rctreject")
-//			.process(rejectResponsePrc)
-//			.setHeader("tmpBody", simple("${body}"))
-//			.marshal(bmJDF).marshal().zipDeflater().marshal().base64()
-//			.setProperty("prop_toBI_jsonzip", simple("${body}"))
-//			.setBody(simple("${header.tmpBody}"))
-//			.to("seda:save_rct?exchangePattern=InOnly")
-//		;
 		
-		from("seda:save_rct").routeId("komi.saverevct")
-			.setExchangePattern(ExchangePattern.InOnly)
+		from("direct:save_rct").routeId("komi.saverevct")
 			.process(saveRevCTProc)
 		;
 	

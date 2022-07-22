@@ -7,7 +7,7 @@ import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import bifast.inbound.corebank.isopojo.AccountEnquiryInboundRequest;
+import bifast.inbound.corebank.isopojo.AccountEnquiryRequest;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
 import bifast.inbound.service.TransRef;
@@ -30,7 +30,7 @@ public class IsoAERequestPrc implements Processor {
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
 		FlatPacs008Pojo aeRequest = (FlatPacs008Pojo) processData.getBiRequestFlat();
 		
-		AccountEnquiryInboundRequest req = new AccountEnquiryInboundRequest();
+		AccountEnquiryRequest req = new AccountEnquiryRequest();
 
 		req.setAccountNumber(aeRequest.getCreditorAccountNo());
 		

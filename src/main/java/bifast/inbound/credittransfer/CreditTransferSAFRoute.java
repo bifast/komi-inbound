@@ -11,7 +11,6 @@ import bifast.inbound.credittransfer.processor.CbSettlementRequestProc;
 
 @Component
 public class CreditTransferSAFRoute extends RouteBuilder {
-//	@Autowired private JacksonDataFormatService jdfService;
 	@Autowired private CTCorebankRequestProcessor ctRequestProcessor;
 	@Autowired private CbSettlementRequestProc settlementRequestPrc;
 	@Autowired private InitiateCTJobProcessor initCTJobProcessor;
@@ -42,21 +41,16 @@ public class CreditTransferSAFRoute extends RouteBuilder {
 
 			.process(ctRequestProcessor)
 			// send ke corebank
-			.setHeader("cb_msgname", constant("CTSaf"))
-			.to("direct:isoadpt")
+			.setHeader("cb_msgname", constant("CTSAF"))
+			.to("direct:isoadpt-credit")
 			
 			.log(LoggingLevel.DEBUG, "komi.ct.saf", "[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Selesai call credit account")
 			
 			.choice()
-				.when().simple("${body.class} endsWith 'FaultPojo' && ${body.callStatus} == 'TIMEOUT' ")
+				.when().simple("${body.status} == 'TIMEOUT'")
 					.log(LoggingLevel.DEBUG,"komi.ct.saf", "[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Update CT status TIMEOUT")
 					.to("sql:update kc_credit_transfer "
-							+ "set cb_status = 'TIMEOUT'  "
-							+ "where id = :#${exchangeProperty.ctsaf_qryresult[id]}")
-				.endChoice()
-				.when().simple("${body.class} endsWith 'FaultPojo' && ${body.callStatus} == 'ERROR' ")
-					.to("sql:update kc_credit_transfer "
-							+ "set cb_status = 'ERROR', reversal = 'PENDING' "
+							+ "set cb_status = 'TIMEOUT' "
 							+ "where id = :#${exchangeProperty.ctsaf_qryresult[id]}")
 				.endChoice()
 				.when().simple("${body.status} == 'RJCT'")

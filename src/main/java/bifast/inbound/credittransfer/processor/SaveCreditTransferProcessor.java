@@ -27,18 +27,21 @@ public class SaveCreditTransferProcessor implements Processor {
 		 
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
 		FlatPacs008Pojo flatReq = (FlatPacs008Pojo)processData.getBiRequestFlat();
+		BusinessMessage biResponse = (BusinessMessage) processData.getBiResponseMsg();
 		
 		CreditTransfer ct = new CreditTransfer();
 
 		ct.setKomiTrnsId(processData.getKomiTrnsId());
 		
 		String fullReqMsg = callRouteService.encryptBusinessMessage(processData.getBiRequestMsg());
-		String fullRespMsg = exchange.getProperty("prop_toBI_jsonzip",String.class);
-		
 		ct.setFullRequestMessage(fullReqMsg);
-		ct.setFullResponseMsg(fullRespMsg);
+		if (null != biResponse) {
+			String fullRespMsg = callRouteService.encryptBusinessMessage(biResponse);
+		//		String fullRespMsg = exchange.getProperty("prop_toBI_jsonzip",String.class);
+			ct.setFullResponseMsg(fullRespMsg);
+		}
 		
-		if (null != processData.getBiResponseMsg()) {
+		if (null != biResponse) {
 			BusinessMessage respBi = processData.getBiResponseMsg();
 			String responseCode = respBi.getDocument().getFiToFIPmtStsRpt().getTxInfAndSts().get(0).getTxSts();
 

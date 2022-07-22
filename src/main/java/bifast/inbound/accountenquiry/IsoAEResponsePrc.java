@@ -5,9 +5,8 @@ import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import bifast.inbound.corebank.isopojo.AccountEnquiryInboundResponse;
+import bifast.inbound.corebank.isopojo.AccountEnquiryResponse;
 import bifast.inbound.iso20022.AppHeaderService;
-import bifast.inbound.pojo.FaultPojo;
 import bifast.inbound.pojo.Pacs002Seed;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.service.Pacs002MessageService;
@@ -39,53 +38,28 @@ public class IsoAEResponsePrc implements Processor {
 		seed.setMsgId(msgId);
 		seed.setCreditorAccountNo(msg.getDocument().getFiToFICstmrCdtTrf().getCdtTrfTxInf().get(0).getCdtrAcct().getId().getOthr().getId());
 
-		AccountEnquiryInboundResponse aeResp = new AccountEnquiryInboundResponse();
-		FaultPojo fault = new FaultPojo();
-		
-		Object oResp = exchange.getMessage().getBody(Object.class);
-//		logger.debug("response class: " + oResp.getClass().getSimpleName());
-		
-		if (oResp.getClass().getSimpleName().equals("AccountEnquiryInboundResponse")) {
-			aeResp = (AccountEnquiryInboundResponse) oResp;
+		AccountEnquiryResponse aeResp = exchange.getMessage().getBody(AccountEnquiryResponse.class);
 
-			seed.setStatus(aeResp.getStatus());
-			if (aeResp.getReason().equals("U101")) {
-				if (null == aeResp.getAccountType())
-					seed.setReason("52");
-				else if (aeResp.getAccountType().equals("SVGS"))
-					seed.setReason("53");
-				else
-					seed.setReason("52");
-			}
-			else if (aeResp.getReason().equals("U102"))
-				seed.setReason("78");
-			else if (!(aeResp.getReason().equals("U000")))
-				seed.setReason("62");
-			else 
-				seed.setReason(aeResp.getReason());
-
-			seed.setCreditorName(aeResp.getCreditorName());
-			seed.setCreditorAccountIdType(aeResp.getAccountType());
-//			seed.setCreditorType(aeResp.getCreditorType());
-//			seed.setCreditorId(aeResp.getCreditorId());
-//			seed.setCreditorTown(aeResp.getTownName());
-//			seed.setCreditorResidentialStatus(aeResp.getResidentStatus());
-		}
-		
-		else {
-			fault = (FaultPojo) oResp;
-
-			seed.setStatus("RJCT");
-			
-			if (fault.getReasonCode().equals("U101")) 
-				seed.setReason("52");
-			else if (fault.getReasonCode().equals("U102"))
-				seed.setReason("78");
-			else 
-				seed.setReason("62");
-		}
-			
+		seed.setCreditorName(aeResp.getCreditorName());
+		seed.setCreditorAccountIdType(aeResp.getAccountType());
 		seed.setCreditorAccountIdType("CACC");
+
+		seed.setStatus(aeResp.getStatus());
+		if (aeResp.getReason().equals("U101")) {
+			if (null == aeResp.getAccountType())
+				seed.setReason("52");
+			else if (aeResp.getAccountType().equals("SVGS"))
+				seed.setReason("53");
+			else
+				seed.setReason("52");
+		}
+		
+		else if (aeResp.getReason().equals("U102"))
+			seed.setReason("78");
+		else if (!(aeResp.getReason().equals("U000")))
+			seed.setReason("62");
+		else 
+			seed.setReason(aeResp.getReason());
 
 		String bizMsgId = utilService.genRfiBusMsgId("510", processData.getKomiTrnsId());
 

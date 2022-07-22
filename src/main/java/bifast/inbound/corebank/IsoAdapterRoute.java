@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import bifast.inbound.corebank.isopojo.AccountEnquiryInboundRequest;
-import bifast.inbound.corebank.isopojo.AccountEnquiryInboundResponse;
+import bifast.inbound.corebank.isopojo.AccountEnquiryRequest;
+import bifast.inbound.corebank.isopojo.AccountEnquiryResponse;
 import bifast.inbound.corebank.isopojo.CreditRequest;
 import bifast.inbound.corebank.isopojo.CreditResponse;
 import bifast.inbound.corebank.isopojo.DebitReversalRequest;
 import bifast.inbound.corebank.isopojo.DebitReversalResponse;
+import bifast.inbound.corebank.processor.CbCallFaultProcessor;
+import bifast.inbound.corebank.processor.SaveCBTransactionProc;
 import bifast.inbound.pojo.FaultPojo;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.processor.EnrichmentAggregator;
@@ -30,13 +32,12 @@ public class IsoAdapterRoute extends RouteBuilder{
 
 	@Override
 	public void configure() throws Exception {
-		JacksonDataFormat aeRequestJDF = jdfService.basic(AccountEnquiryInboundRequest.class);
-		JacksonDataFormat aeResponseJDF = jdfService.basic(AccountEnquiryInboundResponse.class);
-		JacksonDataFormat creditRequestJDF = jdfService.basic(CreditRequest.class);
-		JacksonDataFormat creditResponseJDF = jdfService.basic(CreditResponse.class);
+		JacksonDataFormat aeRequestJDF = jdfService.basic(AccountEnquiryRequest.class);
+		JacksonDataFormat aeResponseJDF = jdfService.basic(AccountEnquiryResponse.class);
 		JacksonDataFormat debitReversalReqJDF = jdfService.basic(DebitReversalRequest.class);
 		JacksonDataFormat debitReversalResponseJDF = jdfService.basic(DebitReversalResponse.class);
 
+		
 		from("direct:isoadpt").routeId("komi.isoadapter")
 
 			.removeHeaders("*")
@@ -53,10 +54,6 @@ public class IsoAdapterRoute extends RouteBuilder{
 					.setHeader("cb_requestName", constant("accountenquiry"))
 					.setHeader("cb_url", simple("{{komi.url.isoadapter.accountinquiry}}"))
 					.marshal(aeRequestJDF)
-				.when().simple("${body.class} endsWith 'CreditRequest'")
-					.setHeader("cb_requestName", constant("credit"))
-					.setHeader("cb_url", simple("{{komi.url.isoadapter.credit}}"))
-					.marshal(creditRequestJDF)
 				.when().simple("${body.class} endsWith 'DebitReversalRequest'")
 					.setHeader("cb_requestName", constant("debitreversal"))
 					.setHeader("cb_url", simple("{{komi.url.isoadapter.credit}}"))
@@ -85,8 +82,6 @@ public class IsoAdapterRoute extends RouteBuilder{
 		 			.when().simple("${header.cb_requestName} == 'accountenquiry'")
 		 				.unmarshal(aeResponseJDF)
 	 				.endChoice()
-		 			.when().simple("${header.cb_requestName} == 'credit'")
-		 				.unmarshal(creditResponseJDF)
 		 			.when().simple("${header.cb_requestName} == 'debitreversal'")
 	 					.unmarshal(debitReversalResponseJDF)
 	 				.endChoice()

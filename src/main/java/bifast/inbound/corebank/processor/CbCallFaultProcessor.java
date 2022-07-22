@@ -1,4 +1,4 @@
-package bifast.inbound.corebank;
+package bifast.inbound.corebank.processor;
 
 import java.lang.reflect.Method;
 

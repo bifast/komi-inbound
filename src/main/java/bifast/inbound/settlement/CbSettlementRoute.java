@@ -9,16 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
-import bifast.inbound.corebank.CbCallFaultProcessor;
 import bifast.inbound.corebank.isopojo.SettlementRequest;
 import bifast.inbound.corebank.isopojo.SettlementResponse;
+import bifast.inbound.corebank.processor.CbCallFaultProcessor;
 import bifast.inbound.pojo.FaultPojo;
 import bifast.inbound.processor.EnrichmentAggregator;
 import bifast.inbound.service.JacksonDataFormatService;
 
 
 @Component
-public class SettlementPostCBRoute extends RouteBuilder{
+public class CbSettlementRoute extends RouteBuilder{
 	@Autowired private JacksonDataFormatService jdfService;
 	@Autowired private EnrichmentAggregator enrichmentAggregator;
 	@Autowired private CbCallFaultProcessor cbFaultProcessor;

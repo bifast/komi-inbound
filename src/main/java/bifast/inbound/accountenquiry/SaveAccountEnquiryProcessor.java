@@ -8,7 +8,7 @@ import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import bifast.inbound.corebank.isopojo.AccountEnquiryInboundResponse;
+import bifast.inbound.corebank.isopojo.AccountEnquiryResponse;
 import bifast.inbound.model.AccountEnquiry;
 import bifast.inbound.pojo.FaultPojo;
 import bifast.inbound.pojo.ProcessDataPojo;
@@ -70,7 +70,7 @@ public class SaveAccountEnquiryProcessor implements Processor {
 				
 		}
 		else {
-			AccountEnquiryInboundResponse aeResponse = (AccountEnquiryInboundResponse) oCbResponse;
+			AccountEnquiryResponse aeResponse = (AccountEnquiryResponse) oCbResponse;
 			ae.setResponseCode(aeResponse.getStatus());
 			ae.setReasonCode(aeResponse.getReason());
 		}

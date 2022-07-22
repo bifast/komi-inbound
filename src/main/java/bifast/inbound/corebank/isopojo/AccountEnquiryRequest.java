@@ -1,6 +1,6 @@
 package bifast.inbound.corebank.isopojo;
 
-public class AccountEnquiryInboundRequest extends BaseRequestDTO {
+public class AccountEnquiryRequest extends BaseRequestDTO {
 
     private String recipientBank;
     
