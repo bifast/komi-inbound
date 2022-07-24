@@ -99,6 +99,7 @@ public class PendingSttlSAFRoute extends RouteBuilder {
 			.filter().simple("${exchangeProperty.pr_psresponse} == 'ACSC'")
 				.log(LoggingLevel.DEBUG, "komi.inbct.saf", 
 						"[PymSts:${exchangeProperty.pr_psrequest.endToEndId}] Settlement dari CIHUB kirim ke Inbound Service")
+				.marshal(businessMessageJDF)
 				.to("direct:receive")
 			.end()
 
