@@ -29,13 +29,8 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter</artifactId>
-		</dependency>
-	
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+		  <groupId>com.fasterxml.jackson.module</groupId>
+		  <artifactId>jackson-module-jaxb-annotations</artifactId>
 		</dependency>
 		
 		<dependency>
@@ -43,23 +38,30 @@
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
 	    <dependency>
 	        <groupId>org.springframework.boot</groupId>
 	        <artifactId>spring-boot-starter-actuator</artifactId>
 	    </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 
-		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-spring-boot-starter</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-servlet-starter</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-http</artifactId>
@@ -67,47 +69,58 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-sql</artifactId>
+			<artifactId>camel-jackson</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-jackson</artifactId>
+			<artifactId>camel-management</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-sql</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+	    
+	    <dependency>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-test-spring-junit5</artifactId>
+			<version>${camel.version}</version>
+		    <scope>test</scope>
+		</dependency>
+	    
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-base64-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
 	    <dependency>
 	        <groupId>org.apache.camel.springboot</groupId>
 	        <artifactId>camel-jaxb-starter</artifactId>
 			<version>${camel.version}</version>
 	    </dependency>
-	    
 		<dependency>
-		  <groupId>com.fasterxml.jackson.module</groupId>
-		  <artifactId>jackson-module-jaxb-annotations</artifactId>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-mock-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-servlet-starter</artifactId>
+			<version>${camel.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-spring-boot-starter</artifactId>
+			<version>${camel.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-zip-deflater-starter</artifactId>
 			<version>${camel.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-base64-starter</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
 		
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-management</artifactId>
-			<version>${camel.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>		
 	</dependencies>
 
 	<build>
