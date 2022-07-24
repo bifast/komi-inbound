@@ -14,7 +14,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,10 +35,10 @@ import bifast.library.iso20022.custom.BusinessMessage;
 import bifast.library.iso20022.custom.Document;
 import bifast.library.iso20022.head001.BusinessApplicationHeaderV01;
 
-//@CamelSpringBootTest
-//@EnableAutoConfiguration
-//@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-//@SpringBootTest
+@CamelSpringBootTest
+@EnableAutoConfiguration
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@SpringBootTest
 public class PaymentCreditRejectTest {
 
 	@Autowired FlattenIsoMessageService flatMsgService;
@@ -64,31 +63,12 @@ public class PaymentCreditRejectTest {
 		return processData;
 	}
 
-	private BusinessMessage aeReq = new BusinessMessage();
 	private static String endToEndId = null;
-
-//	@Test
-//    @Order(4)    
-	public void postAE() throws Exception {
-		aeReq = aeRequest();
-		ProcessDataPojo processData = setProcessData(aeReq);
-		processData.setInbMsgName("AccEnq");
-		Exchange ex = new DefaultExchange(producerTemplate.getCamelContext());
-		ex.setProperty("prop_process_data", processData);
-		ex.setProperty("msgName", "AccEnq");
-		ex = producerTemplate.send("direct:accountenq", ex);
-		Object ret = ex.getMessage().getBody(Object.class);
-
-		Assertions.assertInstanceOf(BusinessMessage.class, ret);
-		BusinessMessage bm = (BusinessMessage) ret;
-		Assertions.assertNotNull(bm.getDocument().getFiToFIPmtStsRpt());
-		Assertions.assertEquals(bm.getDocument().getFiToFIPmtStsRpt().getTxInfAndSts().get(0).getTxSts(), "ACTC");
-	}
 
 	static final BusinessMessage ctReq = new BusinessMessage();
 
-//	@Test
-//    @Order(5)    
+	@Test
+    @Order(4)    
 	public void postCT() throws Exception {
 		BusinessMessage newCT = buildCTRequest();
 		ctReq.setAppHdr(newCT.getAppHdr());
@@ -116,11 +96,10 @@ public class PaymentCreditRejectTest {
 		Assertions.assertEquals(ct.getCallStatus(), "SUCCESS");
 		Assertions.assertEquals(ct.getCbStatus(), "PENDING");
 		Assertions.assertEquals(ct.getSettlementConfBizMsgIdr(), "WAITING");
-		
 	}
 
-//	@Test
-//    @Order(6)    
+	@Test
+    @Order(5)    
 	public void postSttl() throws Exception {
 		String bizMsgId = utilService.genRfiBusMsgId("010", "02", "INDOIDJA");
 		String msgId = utilService.genMessageId("010", "INDOIDJA");
@@ -130,9 +109,8 @@ public class PaymentCreditRejectTest {
 		settlementConf.setAppHdr(sttlHeaderService.getAppHdr("010", bizMsgId));
 		settlementConf.setDocument(new Document());
 		settlementConf.getDocument().setFiToFIPmtStsRpt(sttlBodyService.SettlementConfirmation(msgId, ctReq));
-//		settlementConf.getDocument().getFiToFIPmtStsRpt().getSplmtryData()
 
-		ProcessDataPojo processData = setProcessData(settlementConf);
+		ProcessDataPojo processData = setProcessData(ctReq);
 		processData.setInbMsgName("Settl");
 		processData.setBiRequestFlat(flatMsgService.flatteningPacs002(settlementConf)); 
 
@@ -148,37 +126,17 @@ public class PaymentCreditRejectTest {
 		Assertions.assertNotNull(ct);
 		Assertions.assertEquals(ct.getSettlementConfBizMsgIdr(), "RECEIVED");
 		
-		TimeUnit.SECONDS.sleep(6);
-		CreditTransfer ct2 = ctRepo.findById(lCt.get(0).getId()).orElse(null);
-		
-		Assertions.assertNotNull(ct2);
+		CreditTransfer ct2 = null;
+		int ctr = 0;
+		boolean found = false;
+		while (!found && ctr < 10) {
+			ctr = ctr+1;
+			TimeUnit.SECONDS.sleep(5);
+			ct2 = ctRepo.findById(lCt.get(0).getId()).orElse(null);
+			if (ct2.getCbStatus().equals("DONE")) found = true;
+		}
 		Assertions.assertEquals(ct2.getCbStatus(), "DONE");
 
-	}
-	
-	private BusinessMessage aeRequest() throws Exception  {
-		String bizMsgId = utilService.genRfiBusMsgId("510", "01", "BMNDIDJA");
-		String msgId = utilService.genMessageId("510", "BMNDIDJA");
-		BusinessApplicationHeaderV01 hdr = new BusinessApplicationHeaderV01();
-		hdr = appHeaderService.getAppHdr("pacs.008.001.08", bizMsgId);
-		Pacs008Seed seedAcctEnquiry = new Pacs008Seed();
-		seedAcctEnquiry.setMsgId(msgId);
-		seedAcctEnquiry.setBizMsgId(hdr.getBizMsgIdr());
-		seedAcctEnquiry.setAmount(new BigDecimal(100000));
-		seedAcctEnquiry.setCategoryPurpose("01");
-		seedAcctEnquiry.setCrdtAccountNo("3604107554096");
-		seedAcctEnquiry.setOrignBank("BMNDIDJA");
-		seedAcctEnquiry.setRecptBank("SIHBIDJ1");
-		seedAcctEnquiry.setTrnType("510");
-		seedAcctEnquiry.setPaymentInfo("");
-
-		Document doc = new Document();
-		doc.setFiToFICstmrCdtTrf(pacs008MessageService.accountEnquiryRequest(seedAcctEnquiry));
-
-		BusinessMessage busMsg = new BusinessMessage();
-		busMsg.setAppHdr(hdr);
-		busMsg.setDocument(doc);
-		return busMsg;
 	}
 	
 	private BusinessMessage buildCTRequest() throws Exception {

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -147,10 +146,15 @@ public class PaymentNormalTest {
 		Assertions.assertNotNull(ct);
 		Assertions.assertEquals(ct.getSettlementConfBizMsgIdr(), "RECEIVED");
 		
-		TimeUnit.SECONDS.sleep(10);
-		CreditTransfer ct2 = ctRepo.findById(lCt.get(0).getId()).orElse(null);
-		
-		Assertions.assertNotNull(ct2);
+		CreditTransfer ct2 = null;
+		int ctr = 0;
+		boolean found = false;
+		while (!found && ctr < 10) {
+			ctr = ctr+1;
+			TimeUnit.SECONDS.sleep(5);
+			ct2 = ctRepo.findById(lCt.get(0).getId()).orElse(null);
+			if (ct2.getCbStatus().equals("DONE")) found = true;
+		}
 		Assertions.assertEquals(ct2.getCbStatus(), "DONE");
 
 	}
