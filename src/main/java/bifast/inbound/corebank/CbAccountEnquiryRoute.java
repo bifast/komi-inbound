@@ -40,7 +40,7 @@ public class CbAccountEnquiryRoute extends RouteBuilder{
 			.setHeader("cb_e2eid", simple("${exchangeProperty[prop_process_data.endToEndId]}"))
 			.setProperty("cb_request", simple("${body}"))
 			
-			.log(LoggingLevel.DEBUG,"komi.isoadapter", "[${header.cb_msgname}:${header.cb_e2eid}] Terima di corebank: ${body}")
+			.log(LoggingLevel.DEBUG,"komi.cb.ae", "[${header.cb_msgname}:${header.cb_e2eid}] Terima di corebank: ${body}")
 					
 			.setHeader("cb_requestName", constant("accountenquiry"))
 			.setHeader("cb_url", simple("{{komi.url.isoadapter.accountinquiry}}"))

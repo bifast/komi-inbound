@@ -81,12 +81,11 @@ public class InboundRoute extends RouteBuilder {
 			.wireTap("direct:portalnotif")
 				
 			.filter().simple("${exchangeProperty.prop_process_data.inbMsgName} !in 'Settl, PrxNtf'")
-				.marshal(jsonBusinessMessageDataFormat) 
+				.marshal(jsonBusinessMessageDataFormat).convertBodyTo(String.class)
 				.log("[${exchangeProperty.prop_process_data.inbMsgName}:${exchangeProperty.prop_process_data.endToEndId}] Response: ${body}")
 			.end()
 				
 			.log("[${exchangeProperty.prop_process_data.inbMsgName}:${exchangeProperty.prop_process_data.endToEndId}] completed.")
-			
 			.removeHeaders("*")
 
 		;
