@@ -49,15 +49,18 @@ public class SettlementRoute extends RouteBuilder {
 							settlment_ctType = "Outbound";
 						else
 							settlment_ctType = "Inbound";
+						
+						logger.debug("[Settl:" + e2eid + "] Settlement for " + settlment_ctType + " message");
+
 					}
+					else
+						logger.warn("[Settl:" + e2eid + "] Original payment NOT FOUND.");
+						
 					exchange.setProperty("pr_sttlType", settlment_ctType);
 
 				}
 	 		})
 			
-			.log(LoggingLevel.DEBUG, "komi.settlement", "[${exchangeProperty.prop_process_data.inbMsgName}:"
-					+ "${exchangeProperty.prop_process_data.endToEndId}] Settlement for ${exchangeProperty.pr_sttlType} message")
-
 	 		.process(saveSettlement)
 
 	 		.filter().simple("${exchangeProperty.pr_sttlType} == 'Outbound'")

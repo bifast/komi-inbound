@@ -28,15 +28,12 @@ public class CheckRequestMsgProc implements Processor {
 	public void process(Exchange exchange) throws Exception {
 		BusinessMessage inputMsg = exchange.getMessage().getBody(BusinessMessage.class);
 
-//		ProcessDataPojo processData = new ProcessDataPojo();
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
 
 		processData.setBiRequestMsg(inputMsg);
-//		processData.setStartTime(Instant.now());
-//		processData.setKomiTrnsId(RefUtils.genKomiTrnsId());
 
 		String trnType = inputMsg.getAppHdr().getBizMsgIdr().substring(16,19);
-			
+
 		if (inputMsg.getAppHdr().getMsgDefIdr().startsWith("pacs.002")) {
 			
 			FlatPacs002Pojo flat002 = flatMsgService.flatteningPacs002(inputMsg); 
@@ -100,13 +97,11 @@ public class CheckRequestMsgProc implements Processor {
 			exchange.setProperty("msgName", "MsgRjct");
 		}
 	
-//		logger.debug("[" + processData.getInbMsgName() + ":" + processData.getEndToEndId() +
-//				"] KomiTransId: " + processData.getKomiTrnsId());
-		
+		logger.debug("[" + processData.getInbMsgName() + ":" + processData.getEndToEndId() + "] CheckRequestMsg.");
+
 		processData.setReceivedDt(LocalDateTime.now());
 
 		exchange.setProperty("starttime", LocalDateTime.now());
-//		exchange.setProperty("prop_process_data", processData);
 		exchange.setProperty("pr_komitrnsid", processData.getKomiTrnsId());
 	
 	}

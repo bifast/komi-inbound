@@ -50,6 +50,7 @@ public class CbSettlementRequestProc implements Processor {
 		String e2eid = String.valueOf(arr.get("e2e_id"));
 
 		List<Settlement> setts = settlementRepo.findByOrgnlEndToEndId(e2eid);
+		
 		BusinessMessage settlementMsg = null;
 		if (setts.size()>0) 
 			settlementMsg = routeService.decryptBusinessMessage(setts.get(0).getFullMessage());
