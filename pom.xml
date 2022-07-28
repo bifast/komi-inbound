@@ -11,7 +11,7 @@
 	</parent>
 	
 	<artifactId>komi-inbound</artifactId>
-	<version>1.5.2-SNAPSHOT</version>
+	<version>1.5.3-SNAPSHOT</version>
 	<name>komi-inbound</name>
 	<description>BI FAST Inbound</description>
 	<packaging>jar</packaging>

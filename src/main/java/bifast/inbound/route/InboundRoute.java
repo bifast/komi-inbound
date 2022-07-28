@@ -70,7 +70,7 @@ public class InboundRoute extends RouteBuilder {
 					.setHeader("hdr_toBIobj", simple("${body}"))
 
 				.when().simple("${exchangeProperty.msgName} == 'MsgRjct'")     // reverse CT
-					.to("direct:reverct")
+//					.to("direct:reverct")
 					.setBody(constant(""))
 
 				.otherwise()	

@@ -346,7 +346,8 @@ public class FlattenIsoMessageService {
 		admi002.setBizMsgIdr(busMsg.getAppHdr().getBizMsgIdr());
 		admi002.setMsgDefIdr(busMsg.getAppHdr().getMsgDefIdr());
 		admi002.setBizSvc(busMsg.getAppHdr().getBizSvc());
-		admi002.setCpyDplct(busMsg.getAppHdr().getCpyDplct().value());
+		if (null!=busMsg.getAppHdr().getCpyDplct())
+			admi002.setCpyDplct(busMsg.getAppHdr().getCpyDplct().value());
 		admi002.setCreDt(strTgl(busMsg.getAppHdr().getCreDt()));
 		admi002.setPssblDplct(null);
 		

@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,15 +14,17 @@ import bifast.inbound.pojo.flat.FlatPacs008Pojo;
 import bifast.inbound.repository.CreditTransferRepository;
 
 @Component
-public class CheckDebitHistoryProcessor implements Processor {
+public class CheckDebitHistoryProc implements Processor {
 	@Autowired private CreditTransferRepository ctRepo;
 	
+	private static Logger logger = LoggerFactory.getLogger(CheckDebitHistoryProc.class);
+
 	@Override
 	public void process(Exchange exchange) throws Exception {
 
 		FlatPacs008Pojo request = exchange.getProperty("flatRequest", FlatPacs008Pojo.class);
 		Optional<CreditTransfer> oCrdtTrns = ctRepo.getSuccessByEndToEndId(request.getOrgnlEndToEndId());
-		
+		logger.debug("Lookup outbound transaction: " + request.getOrgnlEndToEndId());
 	
 		if (oCrdtTrns.isPresent()) {
 			CreditTransfer ct = oCrdtTrns.get();
