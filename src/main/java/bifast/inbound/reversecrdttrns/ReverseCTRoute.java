@@ -36,7 +36,6 @@ public class ReverseCTRoute extends RouteBuilder {
 			
 			.filter(exchangeProperty("pr_revCTCheckRsl").isEqualTo("DataMatch"))
 //			.filter().simple("${exchangeProperty.pr_revCTCheckRsl} == 'DataMatch' ")
-			.log("Karena data match")
 
 			.process(isoAERequestPrc)
 			.to("direct:cb_ae")
