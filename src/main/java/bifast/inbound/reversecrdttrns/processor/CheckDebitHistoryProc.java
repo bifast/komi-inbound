@@ -25,6 +25,7 @@ public class CheckDebitHistoryProc implements Processor {
 
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
 		FlatPacs008Pojo request = exchange.getProperty("flatRequest", FlatPacs008Pojo.class);
+		
 		Optional<CreditTransfer> oCrdtTrns = ctRepo.getSuccessByEndToEndId(request.getOrgnlEndToEndId());
 	
 		if (oCrdtTrns.isPresent()) {

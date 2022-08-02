@@ -31,24 +31,22 @@ public class SaveCreditTransferProcessor implements Processor {
 		
 		CreditTransfer ct = new CreditTransfer();
 
+		ct.setMsgType("Credit Transfer");
 		ct.setKomiTrnsId(processData.getKomiTrnsId());
 		
 		String fullReqMsg = callRouteService.encryptBusinessMessage(processData.getBiRequestMsg());
 		ct.setFullRequestMessage(fullReqMsg);
 		if (null != biResponse) {
 			String fullRespMsg = callRouteService.encryptBusinessMessage(biResponse);
-		//		String fullRespMsg = exchange.getProperty("prop_toBI_jsonzip",String.class);
 			ct.setFullResponseMsg(fullRespMsg);
 		}
 		
 		if (null != biResponse) {
-			BusinessMessage respBi = processData.getBiResponseMsg();
-			String responseCode = respBi.getDocument().getFiToFIPmtStsRpt().getTxInfAndSts().get(0).getTxSts();
-
-			ct.setResponseCode(responseCode);
-			ct.setCrdtTrnResponseBizMsgIdr(respBi.getAppHdr().getBizMsgIdr());
-			ct.setReasonCode(respBi.getDocument().getFiToFIPmtStsRpt().getTxInfAndSts().get(0).getStsRsnInf().get(0).getRsn().getPrtry());
 			ct.setCallStatus("SUCCESS");
+			ct.setCrdtTrnResponseBizMsgIdr(biResponse.getAppHdr().getBizMsgIdr());
+			String responseCode = biResponse.getDocument().getFiToFIPmtStsRpt().getTxInfAndSts().get(0).getTxSts();
+			ct.setResponseCode(responseCode);
+			ct.setReasonCode(biResponse.getDocument().getFiToFIPmtStsRpt().getTxInfAndSts().get(0).getStsRsnInf().get(0).getRsn().getPrtry());
 			if (responseCode.equals("ACTC")) {
 				ct.setCbStatus("PENDING");
 				ct.setSettlementConfBizMsgIdr("WAITING");
@@ -56,14 +54,11 @@ public class SaveCreditTransferProcessor implements Processor {
 		}
 		
 		ct.setCihubRequestDT(processData.getReceivedDt());
-		long timeElapsed = Duration.between(processData.getStartTime(), Instant.now()).toMillis();
-		ct.setCihubElapsedTime(timeElapsed);
+		ct.setCihubElapsedTime(Duration.between(processData.getStartTime(), Instant.now()).toMillis());
 
 		ct.setCreateDt(LocalDateTime.now());
 		ct.setLastUpdateDt(LocalDateTime.now());
 
-//		FIToFICustomerCreditTransferV08 creditTransferReq = rcvBi.getDocument().getFiToFICstmrCdtTrf();
-		
 		ct.setAmount(flatReq.getAmount());
 		ct.setCrdtTrnRequestBizMsgIdr(flatReq.getBizMsgIdr());
 		ct.setEndToEndId(flatReq.getEndToEndId());
@@ -77,7 +72,6 @@ public class SaveCreditTransferProcessor implements Processor {
 
 		if (!(null==flatReq.getCreditorId()))
 			ct.setCreditorId(flatReq.getCreditorId());
-				
 		
 		ct.setDebtorAccountNumber(flatReq.getDebtorAccountNo());
 		ct.setDebtorAccountType(flatReq.getDebtorAccountType());
@@ -88,15 +82,9 @@ public class SaveCreditTransferProcessor implements Processor {
 		if (!(null==flatReq.getDebtorId()))
 			ct.setDebtorId(flatReq.getDebtorId());
 
-		if (processData.getInbMsgName().equals("CrdTrn"))
-			ct.setMsgType("Credit Transfer");
-		else
-			ct.setMsgType("Reverse CT");
-				
 		ct.setOriginatingBank(flatReq.getDebtorAgentId());
 		ct.setRecipientBank(flatReq.getCreditorAgentId());
 
-		
 		String reversal = exchange.getMessage().getHeader("hdr_reversal",String.class);
 		ct.setReversal(reversal);
 		

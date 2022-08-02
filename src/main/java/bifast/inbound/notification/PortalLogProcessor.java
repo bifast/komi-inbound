@@ -67,7 +67,7 @@ public class PortalLogProcessor implements Processor{
 		else if (msgName.equals("CrdTrn"))
 			logMsg.setCodelog("CT");
 		else if (msgName.equals("RevCT"))
-			logMsg.setCodelog("RCT");
+			logMsg.setCodelog("CT");
 
 		data.setBifast_trx_no(req.getBizMsgIdr());
 			

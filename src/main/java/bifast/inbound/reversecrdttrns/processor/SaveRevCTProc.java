@@ -32,9 +32,7 @@ public class SaveRevCTProc implements Processor {
 
 		ct.setKomiTrnsId(processData.getKomiTrnsId());
 		
-//		String fullReqMsg = callRouteService.encryptBiRequest(exchange);
 		String fullReqMsg = callRouteService.encryptBusinessMessage(processData.getBiRequestMsg());
-//		String fullRespMsg = exchange.getProperty("prop_toBI_jsonzip",String.class);
 		String fullRespMsg = callRouteService.encryptBusinessMessage(exchange.getMessage().getBody(BusinessMessage.class));
 		
 		ct.setFullRequestMessage(fullReqMsg);
@@ -89,7 +87,7 @@ public class SaveRevCTProc implements Processor {
 		if (!(null==flatReq.getDebtorId()))
 			ct.setDebtorId(flatReq.getDebtorId());
 
-		ct.setMsgType("Reverse CT");
+		ct.setMsgType("Credit Transfer Reversal");
 				
 		ct.setOriginatingBank(flatReq.getDebtorAgentId());
 		ct.setRecipientBank(flatReq.getCreditorAgentId());
