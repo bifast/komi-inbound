@@ -15,19 +15,15 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import bifast.inbound.iso20022.AppHeaderService;
-import bifast.inbound.isoservice.Pacs008MessageService;
-import bifast.inbound.isoservice.Pacs008Seed;
-import bifast.inbound.isoservice.SettlementHeaderService;
-import bifast.inbound.isoservice.SettlementMessageService;
-import bifast.inbound.model.CorebankTransaction;
 import bifast.inbound.model.CreditTransfer;
-import bifast.inbound.repository.CorebankTransactionRepository;
 import bifast.inbound.repository.CreditTransferRepository;
 import bifast.inbound.service.FlattenIsoMessageService;
 import bifast.library.iso20022.custom.BusinessMessage;
 
+@ActiveProfiles("lcl")
 @CamelSpringBootTest
 @EnableAutoConfiguration
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -42,7 +38,7 @@ public class ReversalCTTest {
 
 	private String endToEndId = "";
 
-	@Test
+//	@Test
     @Order(3)    
 	public void revCT() throws Exception {
 		// init sample data
@@ -58,7 +54,7 @@ public class ReversalCTTest {
 			
 	}
 
-	@Test
+//	@Test
     @Order(4)    
 	public void revCTReject() throws Exception {
 		// init sample data

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import bifast.inbound.iso20022.AppHeaderService;
 import bifast.inbound.isoservice.Pacs008MessageService;
@@ -28,6 +29,7 @@ import bifast.library.iso20022.custom.BusinessMessage;
 import bifast.library.iso20022.custom.Document;
 import bifast.library.iso20022.head001.BusinessApplicationHeaderV01;
 
+@ActiveProfiles("lcl")
 @CamelSpringBootTest
 @EnableAutoConfiguration
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -46,8 +48,8 @@ public class PaymentRejectTest {
 	static final BusinessMessage ctReq = new BusinessMessage();
 	private static String endToEndId = null;
 
-	@Test
-    @Order(11)    
+//	@Test
+    @Order(1)    
 	public void postCT() throws Exception {
 		BusinessMessage newCT = buildCTRequest();
 		ctReq.setAppHdr(newCT.getAppHdr());
@@ -72,8 +74,8 @@ public class PaymentRejectTest {
 		
 	}
 
-	@Test
-    @Order(12)    
+//	@Test
+    @Order(2)    
 	public void postSttl() throws Exception {
 		String bizMsgId = testUtilService.genRfiBusMsgId("010", "02", "INDOIDJA");
 		String msgId = testUtilService.genMessageId("010", "INDOIDJA");

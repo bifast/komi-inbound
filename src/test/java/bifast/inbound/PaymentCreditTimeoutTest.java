@@ -1,6 +1,5 @@
 package bifast.inbound;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -15,49 +14,37 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import bifast.inbound.iso20022.AppHeaderService;
-import bifast.inbound.isoservice.Pacs008MessageService;
-import bifast.inbound.isoservice.Pacs008Seed;
-import bifast.inbound.isoservice.SettlementHeaderService;
-import bifast.inbound.isoservice.SettlementMessageService;
 import bifast.inbound.model.CorebankTransaction;
 import bifast.inbound.model.CreditTransfer;
+import bifast.inbound.model.Settlement;
 import bifast.inbound.repository.CorebankTransactionRepository;
 import bifast.inbound.repository.CreditTransferRepository;
-import bifast.inbound.service.FlattenIsoMessageService;
+import bifast.inbound.repository.SettlementRepository;
 import bifast.library.iso20022.custom.BusinessMessage;
-import bifast.library.iso20022.custom.Document;
-import bifast.library.iso20022.head001.BusinessApplicationHeaderV01;
 
+@ActiveProfiles("lcl")
 @CamelSpringBootTest
 @EnableAutoConfiguration
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest
 public class PaymentCreditTimeoutTest {
 
-	@Autowired FlattenIsoMessageService flatMsgService;
-	@Autowired ProducerTemplate producerTemplate;
-	@Autowired TestUtilService testUtilService;
-	@Autowired AppHeaderService appHeaderService;
-	@Autowired private Pacs008MessageService pacs008MessageService;
-	@Autowired private CreditTransferRepository ctRepo;
-	@Autowired private SettlementHeaderService sttlHeaderService;
-	@Autowired private SettlementMessageService sttlBodyService;
 	@Autowired private CorebankTransactionRepository cbRepo;
+	@Autowired private CreditTransferRepository ctRepo;
+	@Autowired private ProducerTemplate producerTemplate;
+	@Autowired private SettlementRepository sttlRepo;
+	@Autowired private TestUtilService testUtilService;
 
 	static final BusinessMessage ctReq = new BusinessMessage();
 	private static String endToEndId = null;
-
-	@Test
+	private static String komiRefId = null;
+	
+//	@Test
     @Order(21)    
 	public void postCT() throws Exception {
-		BusinessMessage newCT = buildCTRequest();
-		ctReq.setAppHdr(newCT.getAppHdr());
-		ctReq.setDocument(newCT.getDocument());
-		endToEndId = ctReq.getDocument().getFiToFICstmrCdtTrf().getCdtTrfTxInf().get(0).getPmtId().getEndToEndId();
-		
-		String strCTReq = testUtilService.serializeBusinessMessage(ctReq);
+		String strCTReq = prepareCTData();
 		Object ret = producerTemplate.sendBody("direct:receive", ExchangePattern.InOut, strCTReq);
 		BusinessMessage bm = testUtilService.deSerializeBusinessMessage((String) ret);
 
@@ -73,21 +60,13 @@ public class PaymentCreditTimeoutTest {
 		Assertions.assertEquals("PENDING", ct.getCbStatus());
 		Assertions.assertEquals("WAITING", ct.getSettlementConfBizMsgIdr());
 		
+		komiRefId = ct.getKomiTrnsId();
 	}
 
-	@Test
+//	@Test
     @Order(22)    
 	public void postSttl() throws Exception {
-		String bizMsgId = testUtilService.genRfiBusMsgId("010", "02", "INDOIDJA");
-		String msgId = testUtilService.genMessageId("010", "INDOIDJA");
-
-		BusinessMessage settlementConf = new BusinessMessage();
-
-		settlementConf.setAppHdr(sttlHeaderService.getAppHdr("010", bizMsgId));
-		settlementConf.setDocument(new Document());
-		settlementConf.getDocument().setFiToFIPmtStsRpt(sttlBodyService.SettlementConfirmation(msgId, ctReq));
-		String strSettl = testUtilService.serializeBusinessMessage(settlementConf);
-
+    	String strSettl = prepareSettlementData();
 		producerTemplate.sendBody("direct:receive", strSettl);
 
 		TimeUnit.SECONDS.sleep(2);
@@ -96,7 +75,7 @@ public class PaymentCreditTimeoutTest {
 		if (lCt.size()>0) ct = lCt.get(0);
 
 		Assertions.assertNotNull(ct);
-		Assertions.assertEquals(ct.getSettlementConfBizMsgIdr(), "RECEIVED");
+		Assertions.assertEquals( "RECEIVED", ct.getSettlementConfBizMsgIdr());
 		
 		CreditTransfer ct2 = null;
 		int ctr = 0;
@@ -107,51 +86,35 @@ public class PaymentCreditTimeoutTest {
 			ct2 = ctRepo.findById(lCt.get(0).getId()).orElse(null);
 			if (ct2.getCbStatus().equals("DONE")) found = true;
 		}
-		Assertions.assertEquals(ct2.getCbStatus(), "TIMEOUT");
+		Assertions.assertEquals( "TIMEOUT", ct2.getCbStatus());
 		Assertions.assertNull(ct2.getReversal());
 		
 		List<CorebankTransaction> lcb = cbRepo.findByTransactionTypeAndKomiTrnsId("Credit", ct2.getKomiTrnsId());
-		CorebankTransaction cb = null;
-		if (lcb.size()>0) cb = lcb.get(0);
-		Assertions.assertNotNull(cb);
+		Assertions.assertTrue(lcb.size()>0);
+		CorebankTransaction cb = lcb.get(0);
 		Assertions.assertEquals("TIMEOUT", cb.getResponse());
 		Assertions.assertEquals("U900", cb.getReason());
 
 	}
-	
-	private BusinessMessage buildCTRequest() throws Exception {
-		Pacs008Seed seedCreditTrn = new Pacs008Seed();
-		String bizMsgId = testUtilService.genRfiBusMsgId("010", "01", "BMNDIDJA" );
-		String msgId = testUtilService.genMessageId("010", "BMNDIDJA");
-		seedCreditTrn.setBizMsgId(bizMsgId);
-		seedCreditTrn.setMsgId(msgId);
-		seedCreditTrn.setAmount(new BigDecimal(150000));
-		seedCreditTrn.setCategoryPurpose("01");
-		seedCreditTrn.setChannel("01");
-		seedCreditTrn.setCrdtAccountNo("3604107554096");		
-		seedCreditTrn.setCrdtAccountType("CACC");
-		seedCreditTrn.setCrdtName("Bambang");
-		seedCreditTrn.setDbtrAccountNo("2001000");
-		seedCreditTrn.setDbtrAccountType("SVGS");
-		seedCreditTrn.setDbtrName("Sugeng");
-		seedCreditTrn.setDbtrId("9999333339");
-		seedCreditTrn.setDbtrType("01"); 
-		seedCreditTrn.setDbtrResidentStatus("01");
-		seedCreditTrn.setDbtrTownName("0300");
-		seedCreditTrn.setOrignBank("BMNDIDJA");
-		seedCreditTrn.setRecptBank("SIHBIDJ1");
-		seedCreditTrn.setPaymentInfo("credittimeout");
-		seedCreditTrn.setTrnType("010");
-		
-		BusinessMessage busMsg = new BusinessMessage();
-		BusinessApplicationHeaderV01 hdr = new BusinessApplicationHeaderV01();
-		hdr = appHeaderService.getAppHdr("pacs.008.001.08", bizMsgId);
-		busMsg.setAppHdr(hdr);
-		Document doc = new Document();
-		doc.setFiToFICstmrCdtTrf(pacs008MessageService.creditTransferRequest(seedCreditTrn));
-		busMsg.setDocument(doc);
-		return busMsg;
-	}
 
+	private String prepareCTData() throws Exception {
+		endToEndId = "20220805BMRIIDJA010O0225001402"; 
+		List<CreditTransfer> lct = ctRepo.findAllByEndToEndId(endToEndId);
+		for (CreditTransfer ct : lct) ctRepo.delete(ct);
+		
+		String strCTReq = "{\"BusMsg\":{\"AppHdr\":{\"Fr\":{\"FIId\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"FASTIDJA\"}}}},\"To\":{\"FIId\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"SIHBIDJ1\"}}}},\"BizMsgIdr\":\"20220805FASTIDJA010H9966897081\",\"MsgDefIdr\":\"pacs.008.001.08\",\"CreDt\":\"2022-08-04T17:12:46Z\"},\"Document\":{\"FIToFICstmrCdtTrf\":{\"GrpHdr\":{\"CreDtTm\":\"2022-08-05T00:12:29.246\",\"MsgId\":\"20220805BMRIIDJA0101257427293\",\"NbOfTxs\":\"1\",\"SttlmInf\":{\"SttlmMtd\":\"CLRG\"}},\"CdtTrfTxInf\":[{\"PmtId\":{\"EndToEndId\":\"20220805BMRIIDJA010O0225001402\",\"TxId\":\"20220805BMRIIDJA0101257427293\",\"ClrSysRef\":\"001\"},\"PmtTpInf\":{\"LclInstrm\":{\"Prtry\":\"02\"},\"CtgyPurp\":{\"Prtry\":\"01099\"}},\"IntrBkSttlmDt\":\"2022-08-05\",\"ChrgBr\":\"DEBT\",\"Dbtr\":{\"Nm\":\"PUTU KUSALIA PUCANGA\",\"Id\":{\"PrvtId\":{\"Othr\":[{\"Id\":\"5108042103650002\"}]}}},\"DbtrAcct\":{\"Id\":{\"Othr\":{\"Id\":\"1450011680796\"}},\"Tp\":{\"Prtry\":\"CACC\"}},\"DbtrAgt\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"BMRIIDJA\"}}},\"CdtrAgt\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"SIHBIDJ1\"}}},\"Cdtr\":{\"Nm\":\"PUTU KUSALIA PUCANGAN\"},\"CdtrAcct\":{\"Id\":{\"Othr\":{\"Id\":\"0112109307961\"}},\"Tp\":{\"Prtry\":\"CACC\"}},\"RmtInf\":{\"Ustrd\":[\"credittimeout\"]},\"IntrBkSttlmAmt\":{\"Value\":600000.00,\"Ccy\":\"IDR\"}}]}}}}";
+		return strCTReq;
+	}
+	
+	private String prepareSettlementData() throws Exception {
+		List<Settlement> lsttl = sttlRepo.findByOrgnlEndToEndId(endToEndId);
+		for (Settlement sttl : lsttl) sttlRepo.delete(sttl);
+		
+		List<CorebankTransaction> lcb = cbRepo.findByTransactionTypeAndKomiTrnsId("Credit", komiRefId);
+		for (CorebankTransaction cb : lcb) cbRepo.delete(cb);
+		
+		String strSettlement = "{\"BusMsg\":{\"AppHdr\":{\"Fr\":{\"FIId\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"FASTIDJA\"}}}},\"To\":{\"FIId\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"SIHBIDJ1\"}}}},\"BizMsgIdr\":\"20220805FASTIDJA010H9923703509\",\"MsgDefIdr\":\"pacs.002.001.10\",\"BizSvc\":\"STTL\",\"CreDt\":\"2022-08-04T17:12:47Z\"},\"Document\":{\"FIToFIPmtStsRpt\":{\"GrpHdr\":{\"MsgId\":\"20220805SIHBIDJ10101257427312\",\"CreDtTm\":\"2022-08-05T00:12:47.244\"},\"OrgnlGrpInfAndSts\":[{\"OrgnlMsgId\":\"20220805BMRIIDJA01025001402\",\"OrgnlMsgNmId\":\"pacs.008.001.08\"}],\"TxInfAndSts\":[{\"OrgnlEndToEndId\":\"20220805BMRIIDJA010O0225001402\",\"OrgnlTxId\":\"20220805BMRIIDJA0101257427293\",\"TxSts\":\"ACSC\",\"StsRsnInf\":[{\"Rsn\":{\"Prtry\":\"U000\"}}],\"ClrSysRef\":\"001\",\"OrgnlTxRef\":{\"IntrBkSttlmDt\":\"2022-08-05\",\"Dbtr\":{\"Pty\":{\"Nm\":\"PUTU KUSALIA PUCANGA\"}},\"DbtrAcct\":{\"Id\":{\"Othr\":{\"Id\":\"1450011680796\"}}},\"DbtrAgt\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"BMRIIDJA\"}}},\"CdtrAgt\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"SIHBIDJ1\"}}},\"Cdtr\":{\"Pty\":{\"Nm\":\"PUTU KUSALIA PUCANGAN\"}},\"CdtrAcct\":{\"Id\":{\"Othr\":{\"Id\":\"0112109307961\"}}}},\"SplmtryData\":[{\"Envlp\":{\"Dtl\":{\"DbtrAgtAcct\":{\"Id\":{\"Othr\":{\"Id\":\"520008000980\"}}},\"CdtrAgtAcct\":{\"Id\":{\"Othr\":{\"Id\":\"523564000980\"}}}}}}]}]}}}}";
+		return strSettlement;
+	}
 
 }

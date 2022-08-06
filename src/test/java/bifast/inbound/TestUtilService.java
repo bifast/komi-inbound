@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.module.jaxb.JaxbAnnotationModule;
 
 import bifast.library.iso20022.custom.BusinessMessage;
 
+@ActiveProfiles("lcl")
 @Service
 public class TestUtilService {
 
@@ -38,7 +40,7 @@ public class TestUtilService {
 		String strToday = LocalDateTime.now().format(formatter);
 		DecimalFormat df = new DecimalFormat("00000000");
 		String strCounter = df.format(getInboundCounter());
-		return strToday + "FASTIDJA" +  trxType + "H03" + strCounter;
+		return strToday + "FASTIDJA" +  trxType + "H99" + strCounter;
 	}
 	
 	public String genRfiBusMsgId (String trxType, String channel, String bankCode ) {
