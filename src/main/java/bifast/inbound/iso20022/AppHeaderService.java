@@ -48,11 +48,9 @@ public class AppHeaderService {
 		
 		XMLGregorianCalendar xcal;
 		try {
-//			gcal.set(Calendar.YEAR, Calendar.MONTH, Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.MINUTE, Calendar.SECOND);
 			xcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
 			appHdr.setCreDt(xcal);
 		} catch (DatatypeConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

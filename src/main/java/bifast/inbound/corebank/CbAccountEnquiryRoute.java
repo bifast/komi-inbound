@@ -18,10 +18,9 @@ import bifast.inbound.service.JacksonDataFormatService;
 
 @Component
 public class CbAccountEnquiryRoute extends RouteBuilder{
-	@Autowired private JacksonDataFormatService jdfService;
-	@Autowired private EnrichmentAggregator enrichmentAggregator;
 	@Autowired private CbAEFailedProc cbFaultProcessor;
-
+	@Autowired private EnrichmentAggregator enrichmentAggregator;
+	@Autowired private JacksonDataFormatService jdfService;
 
 	@Override
 	public void configure() throws Exception {
@@ -32,6 +31,7 @@ public class CbAccountEnquiryRoute extends RouteBuilder{
 			.log(LoggingLevel.ERROR, "[${header.cb_msgname}:${header.cb_e2eid}] Call CB Error.")
 			.log(LoggingLevel.ERROR, "${exception.stacktrace}")
 			.process(cbFaultProcessor)
+			.marshal(aeResponseJDF)
 			.continued(true);
 
 		from("direct:cb_ae").routeId("komi.cb.ae")
