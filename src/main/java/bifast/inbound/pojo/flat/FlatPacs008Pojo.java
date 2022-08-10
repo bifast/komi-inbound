@@ -236,7 +236,7 @@ public class FlatPacs008Pojo extends FlatMessageBase {
 		this.creditorTownName = creditorTownName;
 	}
 	public String getOrgnlEndToEndId() {
-		return orgnlEndToEndId;
+		return Optional.ofNullable(orgnlEndToEndId).orElse("");
 	}
 	public void setOrgnlEndToEndId(String orgnlEndToEndId) {
 		this.orgnlEndToEndId = orgnlEndToEndId;

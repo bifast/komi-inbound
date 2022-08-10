@@ -2,6 +2,7 @@ package bifast.inbound.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -106,7 +107,7 @@ public class ChannelTransaction {
 		this.requestTime = requestTime;
 	}
 	public String getTextMessage() {
-		return textMessage;
+		return Optional.ofNullable(textMessage).orElse("");
 	}
 	public void setTextMessage(String textMessage) {
 		this.textMessage = textMessage;

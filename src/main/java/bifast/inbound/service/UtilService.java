@@ -64,7 +64,7 @@ public class UtilService {
 		return elapsed;
 	}
 
-	public String serializeBusinessMassage (BusinessMessage bm) throws JsonProcessingException {
+	public String serializeBusinessMessage (BusinessMessage bm) throws JsonProcessingException {
 	    ObjectMapper mapper = new ObjectMapper();
 	    mapper.registerModule(new JaxbAnnotationModule());
 	    mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
@@ -72,37 +72,6 @@ public class UtilService {
 		String str = mapper.writeValueAsString(bm);
 		return str;
 	}
-
-//	public LocalDateTime getTimestampFromMessageHistory (List<MessageHistory> list, String nodeId) {
-//		LocalDateTime ldt = LocalDateTime.now();
-//		for (MessageHistory msg : list) {
-//			if (nodeId == msg.getNode().getId()) {
-//				long time = msg.getTime();
-//				ldt = Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault()).toLocalDateTime();
-//			}
-//		}
-//
-//		return ldt;
-//	}
-
-//	public long getRouteElapsed (List<MessageHistory> messageList, String routeId) {
-//		long start = 0;
-//		long end = 0;
-//
-//		for (MessageHistory msg : messageList) {
-//
-//			if ( (msg.getRouteId().equals(routeId)) && 
-//				 (msg.getNode().getId().equals("start_route")) ) {
-//				start = msg.getTime();
-//			}
-//			if ( (msg.getRouteId().equals(routeId)) && 
-//					 (msg.getNode().getId().equals("end_route")) ) {
-//				end = msg.getTime();
-//				}
-//		}
-//
-//		return (end-start);
-//	}
 
 
 	public String getMsgType (String bizDefIdr, String bizMsgIdr) {

@@ -45,6 +45,7 @@ public class CreditTransfer {
 	private String creditorAccountNumber;
 	@Column(name="CREDITOR_ACCT_TYPE", length=10)
 	private String creditorAccountType;
+	
 	@Column(name="CREDITOR_ID", length=50)
 	private String creditorId;
 	@Column(length=10)
@@ -164,17 +165,17 @@ public class CreditTransfer {
 	public void setCreditorAccountType(String creditorAccountType) {
 		this.creditorAccountType = creditorAccountType;
 	}
-	public String getCreditorId() {
-		return creditorId;
-	}
-	public void setCreditorId(String creditorId) {
-		this.creditorId = creditorId;
-	}
 	public String getCreditorType() {
 		return creditorType;
 	}
 	public void setCreditorType(String creditorType) {
 		this.creditorType = creditorType;
+	}
+	public String getCreditorId() {
+		return creditorId;
+	}
+	public void setCreditorId(String creditorId) {
+		this.creditorId = creditorId;
 	}
 	public BigDecimal getAmount() {
 		return amount;

@@ -1,20 +1,32 @@
 package bifast.inbound.credittransfer;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+
+import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import bifast.inbound.credittransfer.processor.CTCorebankRequestProcessor;
-import bifast.inbound.credittransfer.processor.InitiateCTJobProcessor;
+import bifast.inbound.pojo.ProcessDataPojo;
+import bifast.inbound.pojo.flat.FlatPacs008Pojo;
+import bifast.inbound.service.CallRouteService;
+import bifast.inbound.service.FlattenIsoMessageService;
+import bifast.library.iso20022.custom.BusinessMessage;
 import bifast.inbound.credittransfer.processor.CbSettlementRequestProc;
 
 @Component
 public class CreditTransferSAFRoute extends RouteBuilder {
 	@Autowired private CTCorebankRequestProcessor ctRequestProcessor;
 	@Autowired private CbSettlementRequestProc settlementRequestPrc;
-	@Autowired private InitiateCTJobProcessor initCTJobProcessor;
-	
+	@Autowired private CallRouteService routeService;
+	@Autowired private FlattenIsoMessageService flatMsgService;
+
 	@Override
 	public void configure() throws Exception {
 		
@@ -37,7 +49,8 @@ public class CreditTransferSAFRoute extends RouteBuilder {
 			.setProperty("ctsaf_qryresult", simple("${body}"))
 			.log("[CTSAF:${exchangeProperty.ctsaf_qryresult[e2e_id]}] Submit incoming CreditTransfer started.")
 			
-			.process(initCTJobProcessor)  // hdr_process_data
+//			.process(initCTJobProcessor)  // hdr_process_data
+			.process(this::initCT)  // hdr_process_data
 
 			.process(ctRequestProcessor)
 			// send ke corebank
@@ -83,4 +96,27 @@ public class CreditTransferSAFRoute extends RouteBuilder {
 
 	}
 
+	private void initCT(Exchange exchange) throws JsonProcessingException {
+		@SuppressWarnings("unchecked")
+		HashMap<String, Object> arr = exchange.getProperty("ctsaf_qryresult",HashMap.class);
+
+		BusinessMessage orgnlCTRequest = routeService.decryptBusinessMessage(String.valueOf(arr.get("ct_msg"))); 
+		
+		ProcessDataPojo processData = new ProcessDataPojo();
+		FlatPacs008Pojo flat008 = flatMsgService.flatteningPacs008(orgnlCTRequest); 
+		
+		processData.setBiRequestFlat(flat008);
+	
+		processData.setBiRequestMsg(orgnlCTRequest);
+		processData.setStartTime(Instant.now());
+		processData.setInbMsgName("CTSAF");
+		processData.setEndToEndId(flat008.getEndToEndId());
+		processData.setKomiTrnsId(String.valueOf(arr.get("komi_trns_id")));
+		processData.setReceivedDt(LocalDateTime.now());
+
+		exchange.setProperty("prop_process_data", processData);
+		
+		exchange.setProperty("pr_komitrnsid", String.valueOf(arr.get("komi_trns_id")));
+
+	}
 }
