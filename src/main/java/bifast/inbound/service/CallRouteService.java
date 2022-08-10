@@ -16,7 +16,7 @@ public class CallRouteService {
 	
 	public String encryptBusinessMessage (BusinessMessage bm) throws JsonProcessingException {
 		FluentProducerTemplate template = camelContext.createFluentProducerTemplate();
-		String str = utilService.serializeBusinessMassage(bm);
+		String str = utilService.serializeBusinessMessage(bm);
 		String encrBody = template.withBody(str).to("direct:encrypbody").request(String.class);
 		return encrBody;
 	}

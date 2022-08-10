@@ -15,19 +15,17 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import bifast.inbound.iso20022.AppHeaderService;
-import bifast.inbound.isoservice.Pacs008MessageService;
-import bifast.inbound.isoservice.Pacs008Seed;
-import bifast.inbound.isoservice.SettlementHeaderService;
-import bifast.inbound.isoservice.SettlementMessageService;
-import bifast.inbound.model.CorebankTransaction;
+import bifast.inbound.model.ChannelTransaction;
 import bifast.inbound.model.CreditTransfer;
-import bifast.inbound.repository.CorebankTransactionRepository;
+import bifast.inbound.repository.ChannelTransactionRepository;
 import bifast.inbound.repository.CreditTransferRepository;
 import bifast.inbound.service.FlattenIsoMessageService;
 import bifast.library.iso20022.custom.BusinessMessage;
 
+@ActiveProfiles("lcl")
 @CamelSpringBootTest
 @EnableAutoConfiguration
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -39,11 +37,12 @@ public class ReversalCTTest {
 	@Autowired TestUtilService testUtilService;
 	@Autowired AppHeaderService appHeaderService;
 	@Autowired private CreditTransferRepository ctRepo;
+	@Autowired private ChannelTransactionRepository chnlRepo;
 
 	private String endToEndId = "";
 
 	@Test
-    @Order(3)    
+    @Order(1)    
 	public void revCT() throws Exception {
 		// init sample data
 		endToEndId = "20220729SIHBIDJ1010O0281261002";
@@ -58,7 +57,7 @@ public class ReversalCTTest {
 			
 	}
 
-	@Test
+//	@Test
     @Order(4)    
 	public void revCTReject() throws Exception {
 		// init sample data
@@ -75,11 +74,26 @@ public class ReversalCTTest {
 	}
 
 	private void sampleDataInit () {
+		ChannelTransaction chnlTrns = chnlRepo.findById("20220729O81261002").orElse(new ChannelTransaction());
+		chnlTrns.setAmount(new BigDecimal(100000));
+		chnlTrns.setCallStatus("SUCCESS");
+		chnlTrns.setChannelId("MB");
+		chnlTrns.setChannelRefId("MB22004050506");
+		chnlTrns.setElapsedTime(Long.valueOf(300));
+		chnlTrns.setKomiTrnsId("20220729O81261002");
+		chnlTrns.setMsgName("CTReq");
+		chnlTrns.setRecptBank("BMRIIDJA");
+		chnlTrns.setRequestTime(LocalDateTime.now());
+		chnlTrns.setResponseCode("ACTC");
+		chnlTrns.setTextMessage("{\"CreditTransferRequest\":{\"NoRef\":\"MB22004050506\",\"TerminalId\":\"MOBILE0001\",\"CategoryPurpose\":\"01\",\"DebtorName\":\"ROBY MEDIKA\",\"DebtorType\":\"01\",\"DebtorId\":\"3175024712440003\",\"DebtorAccountNumber\":\"3602103332330\",\"DebtorAccountType\":\"SVGS\",\"DebtorResidentialStatus\":\"01\",\"DebtorTownName\":\"0395\",\"Amount\":\"100000.00\",\"FeeTransfer\":\"2500.00\",\"RecipientBank\":\"BMRIIDJA\",\"CreditorName\":\"\",\"CreditorType\":\"01\",\"CreditorId\":\"25666057\",\"CreditorAccountNumber\":\"112211333\",\"CreditorAccountType\":\"CACC\",\"CreditorResidentialStatus\":\"01\",\"CreditorTownName\":\"0300\",\"CreditorProxyId\":\"\",\"CreditorProxyType\":\"\",\"PaymentInformation\":\"PRODIS MESSAGE ERROR REVERSAL\"}}");
+		chnlRepo.save(chnlTrns);
+		
 		List<CreditTransfer> lct = ctRepo.findAllByEndToEndId(endToEndId);
 		for (CreditTransfer ct : lct ) ctRepo.delete(ct);
 		
 		CreditTransfer ct = new CreditTransfer();
 		ct.setAmount(new BigDecimal(100000));
+		
 		ct.setCallStatus("SUCCESS");
 		ct.setCihubElapsedTime(Long.valueOf(1000));
 		ct.setCihubRequestDT(LocalDateTime.now());
@@ -93,7 +107,7 @@ public class ReversalCTTest {
 		ct.setKomiTrnsId("20220729O81261002");
 		ct.setMsgType("Credit Transfer");
 		ct.setOriginatingBank("SIHBIDJ1");
-		ct.setRecipientBank("CENAIDJA");
+		ct.setRecipientBank("BMRIIDJA");
 		ct.setResponseCode("ACTC");
 		ct.setReasonCode("U000");
 		ct.setSettlementConfBizMsgIdr("RECEIVED");

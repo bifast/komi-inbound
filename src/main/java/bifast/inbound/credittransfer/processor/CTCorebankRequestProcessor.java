@@ -1,6 +1,7 @@
 package bifast.inbound.credittransfer.processor;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -8,15 +9,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import bifast.inbound.config.Config;
 import bifast.inbound.corebank.isopojo.CreditRequest;
+import bifast.inbound.credittransfer.ChnlCTRequestDTO;
+import bifast.inbound.model.ChannelTransaction;
+import bifast.inbound.model.CreditTransfer;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.pojo.flat.FlatPacs008Pojo;
+import bifast.inbound.repository.ChannelTransactionRepository;
+import bifast.inbound.repository.CreditTransferRepository;
 import bifast.inbound.service.RefUtils;
 
 @Component
 public class CTCorebankRequestProcessor implements Processor {
-	@Autowired Config config;
+	@Autowired private ChannelTransactionRepository channelRepo;
+	@Autowired private CreditTransferRepository ctRepo;
+	@Autowired private Config config;
 
 	@Value("${komi.isoadapter.merchant}")
 	String merchant;
@@ -81,13 +94,31 @@ public class CTCorebankRequestProcessor implements Processor {
 		cbRequest.setDebtorResidentStatus(biReq.getDebtorResidentialStatus());
 		cbRequest.setDebtorTownName(biReq.getDebtorTownName());
 		cbRequest.setDebtorType(biReq.getDebtorType());
-		
-		cbRequest.setFeeTransfer("0.00");
+
+		cbRequest.setFeeTransfer(getFeeTransfer(biReq.getOrgnlEndToEndId()));
 
 		if (!(null == biReq.getPaymentInfo()))
 			cbRequest.setPaymentInformation(biReq.getPaymentInfo());
-				
+		
 		exchange.getMessage().setBody(cbRequest);
+	}
+	
+	private String getFeeTransfer (String endToEndId) throws JsonMappingException, JsonProcessingException  {
+		List<CreditTransfer> lct = ctRepo.findAllByEndToEndId(endToEndId);
+		String oriKomiId = "";
+		if (lct.size()>0) oriKomiId = lct.get(0).getKomiTrnsId();
+		String reqText = channelRepo.findById(oriKomiId).orElse(new ChannelTransaction()).getTextMessage();
+		
+		if (!(reqText.isBlank())) {
+		    ObjectMapper mapper = new ObjectMapper();
+		    mapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
+		    ChnlCTRequestDTO chnlReq = mapper.readValue(reqText, ChnlCTRequestDTO.class);
+		    return chnlReq.getFeeTransfer();
+		}
+		else {
+			return "0.00";
+		}
+
 	}
 
 }
