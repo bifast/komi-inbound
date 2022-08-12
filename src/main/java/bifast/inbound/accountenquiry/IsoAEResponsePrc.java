@@ -38,7 +38,8 @@ public class IsoAEResponsePrc implements Processor {
 		seed.setMsgId(msgId);
 		seed.setCreditorAccountNo(msg.getDocument().getFiToFICstmrCdtTrf().getCdtTrfTxInf().get(0).getCdtrAcct().getId().getOthr().getId());
 
-		AccountEnquiryResponse aeResp = exchange.getMessage().getBody(AccountEnquiryResponse.class);
+//		AccountEnquiryResponse aeResp = exchange.getMessage().getBody(AccountEnquiryResponse.class);
+		AccountEnquiryResponse aeResp = (AccountEnquiryResponse) processData.getCorebankResponse();
 
 		seed.setCreditorName(aeResp.getCreditorName());
 		seed.setCreditorAccountIdType(aeResp.getAccountType());

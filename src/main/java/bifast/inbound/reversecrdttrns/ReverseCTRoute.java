@@ -37,8 +37,7 @@ public class ReverseCTRoute extends RouteBuilder {
 			.wireTap("direct:save_rct")
 		;
 
-		
-		from("direct:save_rct").routeId("komi.saverevct").log("saveRevCTTable").process(saveRevCTProc);
+		from("direct:save_rct").routeId("komi.saverevct").process(saveRevCTProc);
 	
 	}
 }

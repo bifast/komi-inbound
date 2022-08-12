@@ -87,7 +87,7 @@ public class SaveRevCTProc implements Processor {
 		if (!(null==flatReq.getDebtorId()))
 			ct.setDebtorId(flatReq.getDebtorId());
 
-		ct.setMsgType("Credit Transfer Reversal");
+		ct.setMsgType("Reversal Credit Transfer");
 				
 		ct.setOriginatingBank(flatReq.getDebtorAgentId());
 		ct.setRecipientBank(flatReq.getCreditorAgentId());

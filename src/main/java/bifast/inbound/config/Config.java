@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class Config {
 
 	private String bankcode;
+	private Debitrev debitrev;
+
 	private Map<String,String> ciConnector; 
 	private Map<String,String> corebank;
 	public String getBankcode() {
@@ -17,6 +19,12 @@ public class Config {
 	}
 	public void setBankcode(String bankcode) {
 		this.bankcode = bankcode;
+	}
+	public Debitrev getDebitrev() {
+		return debitrev;
+	}
+	public void setDebitrev(Debitrev debitrev) {
+		this.debitrev = debitrev;
 	}
 	public Map<String, String> getCiConnector() {
 		return ciConnector;

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import bifast.inbound.config.Config;
 import bifast.inbound.model.CreditTransfer;
+import bifast.inbound.pojo.ProcessDataPojo;
+import bifast.inbound.pojo.flat.FlatPacs002Pojo;
 import bifast.inbound.repository.CreditTransferRepository;
 
 @Component
@@ -61,7 +63,16 @@ public class SettlementRoute extends RouteBuilder {
 				}
 	 		})
 			
-	 		.process(saveSettlement)
+//	 		.process(saveSettlement)
+	 		
+	 		.process(exchange -> {
+				String e2eid = exchange.getProperty("end2endid", String.class);
+	 			CreditTransfer ct = ctRepo.getSuccessByEndToEndId(e2eid).orElse(null);
+	 			if (null != ct) {
+	 				ct.setSettlementConfBizMsgIdr("RECEIVED");
+	 				ctRepo.save(ct);
+	 			}
+	 		})
 
 	 		.filter().simple("${exchangeProperty.pr_sttlType} == 'Outbound'")
 				.process(settlementDebitProcessor)

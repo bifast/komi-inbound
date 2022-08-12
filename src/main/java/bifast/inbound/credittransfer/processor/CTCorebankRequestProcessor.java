@@ -43,7 +43,6 @@ public class CTCorebankRequestProcessor implements Processor {
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		ProcessDataPojo processData= exchange.getProperty("prop_process_data", ProcessDataPojo.class);
-//		String komiTrnsId = processData.getKomiTrnsId();
 		
 		FlatPacs008Pojo biReq = (FlatPacs008Pojo) processData.getBiRequestFlat();
 
@@ -95,7 +94,7 @@ public class CTCorebankRequestProcessor implements Processor {
 		cbRequest.setDebtorTownName(biReq.getDebtorTownName());
 		cbRequest.setDebtorType(biReq.getDebtorType());
 
-		cbRequest.setFeeTransfer(getFeeTransfer(biReq.getOrgnlEndToEndId()));
+//		cbRequest.setFeeTransfer("0.00");
 
 		if (!(null == biReq.getPaymentInfo()))
 			cbRequest.setPaymentInformation(biReq.getPaymentInfo());

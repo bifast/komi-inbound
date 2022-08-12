@@ -2,9 +2,7 @@ package bifast.inbound.route;
 
 import java.time.Instant;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,17 +29,16 @@ public class InboundRoute extends RouteBuilder {
 		from("direct:receive").routeId("komi.inboundRoute")
 			.convertBodyTo(String.class)
 	
-			.log(LoggingLevel.DEBUG,"komi.jsonEndpoint", "-------****------")
+			.log(LoggingLevel.DEBUG,"komi.inboundRoute", "-------****------")
 			.log("Terima: ${body}")
-		
-			.process(new Processor() {
-				public void process(Exchange exchange) throws Exception {
-					ProcessDataPojo processData = new ProcessDataPojo();
-					processData.setTextDataReceived(exchange.getMessage().getBody(String.class));
-					processData.setStartTime(Instant.now());
-					processData.setKomiTrnsId(RefUtils.genKomiTrnsId());
-					exchange.setProperty("prop_process_data", processData);
-				}
+
+			// initiate prop_process_data property
+			.process(exchange -> {
+				ProcessDataPojo processData = new ProcessDataPojo();
+				processData.setTextDataReceived(exchange.getMessage().getBody(String.class));
+				processData.setStartTime(Instant.now());
+				processData.setKomiTrnsId(RefUtils.genKomiTrnsId());
+				exchange.setProperty("prop_process_data", processData);
 			})
 
 			.unmarshal(jsonBusinessMessageDataFormat)  // ubah ke pojo BusinessMessage

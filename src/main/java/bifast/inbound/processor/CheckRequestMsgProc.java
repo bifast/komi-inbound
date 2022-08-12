@@ -76,6 +76,7 @@ public class CheckRequestMsgProc implements Processor {
 			else if (trnType.equals("011")) {
 				processData.setInbMsgName("RevCT");
 				exchange.setProperty("msgName", "RevCT");
+				exchange.setProperty("end2endid", flat008.getOrgnlEndToEndId());
 			}
 		}
 
@@ -97,12 +98,11 @@ public class CheckRequestMsgProc implements Processor {
 			exchange.setProperty("msgName", "MsgRjct");
 		}
 	
-		logger.debug("[" + processData.getInbMsgName() + ":" + processData.getEndToEndId() + "] CheckRequestMsg.");
-
 		processData.setReceivedDt(LocalDateTime.now());
 
 		exchange.setProperty("starttime", LocalDateTime.now());
 		exchange.setProperty("pr_komitrnsid", processData.getKomiTrnsId());
+		logger.info("[" + processData.getInbMsgName() + ":" + processData.getEndToEndId() + "] KomiId: " + processData.getKomiTrnsId() );
 	
 	}
 	

@@ -1,8 +1,9 @@
 package bifast.inbound.corebank;
 
+import java.lang.reflect.Method;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +12,12 @@ import org.springframework.stereotype.Component;
 
 import bifast.inbound.corebank.isopojo.AccountEnquiryRequest;
 import bifast.inbound.corebank.isopojo.AccountEnquiryResponse;
-import bifast.inbound.corebank.processor.CbAEFailedProc;
 import bifast.inbound.pojo.ProcessDataPojo;
 import bifast.inbound.processor.EnrichmentAggregator;
 import bifast.inbound.service.JacksonDataFormatService;
 
 @Component
 public class CbAccountEnquiryRoute extends RouteBuilder{
-	@Autowired private CbAEFailedProc cbFaultProcessor;
 	@Autowired private EnrichmentAggregator enrichmentAggregator;
 	@Autowired private JacksonDataFormatService jdfService;
 
@@ -30,8 +29,7 @@ public class CbAccountEnquiryRoute extends RouteBuilder{
 		onException(Exception.class)
 			.log(LoggingLevel.ERROR, "[${header.cb_msgname}:${header.cb_e2eid}] Call CB Error.")
 			.log(LoggingLevel.ERROR, "${exception.stacktrace}")
-			.process(cbFaultProcessor)
-			.marshal(aeResponseJDF)
+			.process(this::cbAEFailed).marshal(aeResponseJDF)
 			.continued(true);
 
 		from("direct:cb_ae").routeId("komi.cb.ae")
@@ -62,14 +60,34 @@ public class CbAccountEnquiryRoute extends RouteBuilder{
 			.setHeader("cb_response", simple("${body.status}"))
 			.setHeader("cb_reason", simple("${body.reason}"))
 			
-			.process(new Processor() {
-				public void process(Exchange exchange) throws Exception {
-					ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
-					processData.setCorebankResponse(exchange.getMessage().getBody());
-				}
+			.process(exchange -> {
+				ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
+				processData.setCorebankResponse(exchange.getMessage().getBody());
 			})
 		;
 		
+	}
+
+	private void cbAEFailed (Exchange exchange) throws Exception {
+		Object objException = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Object.class);
+
+		int statusCode = 500;
+		try {
+			Method getStatusCode = objException.getClass().getMethod("getStatusCode");
+			statusCode = (int) getStatusCode.invoke(objException);
+		} catch(NoSuchMethodException noMethodE) {}
+
+		AccountEnquiryResponse resp = new AccountEnquiryResponse();
+		if (statusCode == 504) {
+			resp.setStatus("RJCT");
+			resp.setReason("U900");
+		}
+		else {
+			resp.setStatus("RJCT");
+			resp.setReason("U901");
+		}
+
+		exchange.getMessage().setBody(resp, AccountEnquiryResponse.class);
 	}
 
 }

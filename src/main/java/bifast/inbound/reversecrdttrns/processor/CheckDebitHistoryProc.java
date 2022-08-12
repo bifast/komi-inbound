@@ -24,8 +24,12 @@ public class CheckDebitHistoryProc implements Processor {
 	public void process(Exchange exchange) throws Exception {
 
 		ProcessDataPojo processData = exchange.getProperty("prop_process_data", ProcessDataPojo.class);
-		FlatPacs008Pojo request = exchange.getProperty("flatRequest", FlatPacs008Pojo.class);
-		
+//		FlatPacs008Pojo request = exchange.getProperty("flatRequest", FlatPacs008Pojo.class);
+		FlatPacs008Pojo request = (FlatPacs008Pojo) processData.getBiRequestFlat();
+
+		logger.debug("["+ processData.getInbMsgName() + ":" + processData.getEndToEndId() + "] "
+				+ "Reversal CT atas endToEndId: " + request.getOrgnlEndToEndId() );
+
 		Optional<CreditTransfer> oCrdtTrns = ctRepo.getSuccessByEndToEndId(request.getOrgnlEndToEndId());
 	
 		if (oCrdtTrns.isPresent()) {

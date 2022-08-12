@@ -7,8 +7,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.RoutesBuilder;
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.spring.junit5.CamelSpringBootTest;
 import org.apache.camel.test.spring.junit5.MockEndpoints;
@@ -20,14 +18,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import bifast.inbound.corebank.isopojo.AccountEnquiryRequest;
-import bifast.inbound.corebank.isopojo.AccountEnquiryResponse;
 import bifast.inbound.iso20022.AppHeaderService;
 import bifast.inbound.isoservice.Pacs008MessageService;
 import bifast.inbound.isoservice.Pacs008Seed;
@@ -50,7 +42,7 @@ import bifast.library.iso20022.head001.BusinessApplicationHeaderV01;
 //		"komi.url.isoadapter=http://localhost:9006/mock/adapter" 		
 	}
 )
-//@MockEndpoints("http:*")
+@MockEndpoints
 public class PaymentNormalTest {
 
 	@Autowired FlattenIsoMessageService flatMsgService;
@@ -87,11 +79,11 @@ public class PaymentNormalTest {
 //        }
 //    }
     
-	@Test
+//	@Test
     @Order(1)    
 	public void postAE() throws Exception {
-		String strAEReq = prepareAEData();
-		
+		String strAEReq = "{\"BusMsg\":{\"AppHdr\":{\"Fr\":{\"FIId\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"FASTIDJA\"}}}},\"To\":{\"FIId\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"SIHBIDJ1\"}}}},\"BizMsgIdr\":\"20220806FASTIDJA510H9972006258\",\"MsgDefIdr\":\"pacs.008.001.08\",\"CreDt\":\"2022-08-05T17:05:04Z\"},\"Document\":{\"FIToFICstmrCdtTrf\":{\"GrpHdr\":{\"CreDtTm\":\"2022-08-06T00:05:03.979\",\"MsgId\":\"20220806BMRIIDJA5101271696568\",\"NbOfTxs\":\"1\",\"SttlmInf\":{\"SttlmMtd\":\"CLRG\"}},\"CdtTrfTxInf\":[{\"PmtId\":{\"EndToEndId\":\"20220806BMRIIDJA510O0220538096\",\"TxId\":\"20220806BMRIIDJA5101271696568\",\"ClrSysRef\":\"001\"},\"PmtTpInf\":{\"CtgyPurp\":{\"Prtry\":\"51099\"}},\"IntrBkSttlmDt\":\"2022-08-06\",\"ChrgBr\":\"DEBT\",\"Dbtr\":{},\"DbtrAgt\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"BMRIIDJA\"}}},\"CdtrAgt\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"SIHBIDJ1\"}}},\"Cdtr\":{},\"CdtrAcct\":{\"Id\":{\"Othr\":{\"Id\":\"2782807801222\"}}},\"IntrBkSttlmAmt\":{\"Value\":1510000.00,\"Ccy\":\"IDR\"}}]}}}}";
+
 		mockaeurl.expectedMessageCount(1);
 //		mockaeurl.allMessages().body().isInstanceOf(AccountEnquiryRequest.class);
 //		mockae.expectedBodyReceived().simple("${body.class} endsWith 'AccountEnquiryRequest' ");
@@ -105,7 +97,7 @@ public class PaymentNormalTest {
 	static final BusinessMessage ctReq = new BusinessMessage();
 	private static String endToEndId = null;
 
-//	@Test
+	@Test
     @Order(2)    
 	public void postCT() throws Exception {
 		BusinessMessage newCT = buildCTRequest();
@@ -131,7 +123,7 @@ public class PaymentNormalTest {
 		
 	}
 
-//	@Test
+	@Test
     @Order(3)    
 	public void postSttl() throws Exception {
 		String bizMsgId = testUtilService.genRfiBusMsgId("010", "02", "INDOIDJA");
@@ -165,11 +157,6 @@ public class PaymentNormalTest {
 		Assertions.assertEquals(ct2.getCbStatus(), "DONE");
 
 	}
-	
-    public String prepareAEData() throws JsonProcessingException {
-    	String str = "{\"BusMsg\":{\"AppHdr\":{\"Fr\":{\"FIId\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"FASTIDJA\"}}}},\"To\":{\"FIId\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"SIHBIDJ1\"}}}},\"BizMsgIdr\":\"20220806FASTIDJA510H9972006258\",\"MsgDefIdr\":\"pacs.008.001.08\",\"CreDt\":\"2022-08-05T17:05:04Z\"},\"Document\":{\"FIToFICstmrCdtTrf\":{\"GrpHdr\":{\"CreDtTm\":\"2022-08-06T00:05:03.979\",\"MsgId\":\"20220806BMRIIDJA5101271696568\",\"NbOfTxs\":\"1\",\"SttlmInf\":{\"SttlmMtd\":\"CLRG\"}},\"CdtTrfTxInf\":[{\"PmtId\":{\"EndToEndId\":\"20220806BMRIIDJA510O0220538096\",\"TxId\":\"20220806BMRIIDJA5101271696568\",\"ClrSysRef\":\"001\"},\"PmtTpInf\":{\"CtgyPurp\":{\"Prtry\":\"51099\"}},\"IntrBkSttlmDt\":\"2022-08-06\",\"ChrgBr\":\"DEBT\",\"Dbtr\":{},\"DbtrAgt\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"BMRIIDJA\"}}},\"CdtrAgt\":{\"FinInstnId\":{\"Othr\":{\"Id\":\"SIHBIDJ1\"}}},\"Cdtr\":{},\"CdtrAcct\":{\"Id\":{\"Othr\":{\"Id\":\"2782807801222\"}}},\"IntrBkSttlmAmt\":{\"Value\":1510000.00,\"Ccy\":\"IDR\"}}]}}}}";
-    	return str;
-    }
 	
 	
 	private BusinessMessage buildCTRequest() throws Exception {
