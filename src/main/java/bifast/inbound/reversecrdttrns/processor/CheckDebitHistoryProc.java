@@ -34,7 +34,7 @@ public class CheckDebitHistoryProc implements Processor {
 	
 		if (oCrdtTrns.isPresent()) {
 			CreditTransfer ct = oCrdtTrns.get();
-
+			
 			if (ct.getAmount().compareTo(request.getAmount()) != 0) {
 				logger.debug("["+ processData.getInbMsgName() + ":" + processData.getEndToEndId() + "] "
 						+ "Lookup outbound transaction: " + request.getOrgnlEndToEndId() + " amount is not match!");
