@@ -1,6 +1,7 @@
 package bifast.inbound.reversecrdttrns.pojo;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 	,"dbtrAccountType"
 	,"dbtrResidentialStatus"
 	,"dbtrTownName"
+	,"currency"
 	,"amount"
 	,"feeTransfer"
 	,"recptBank"
@@ -60,6 +62,8 @@ public class ChnlCreditTransferRequestPojo {
 	private String dbtrResidentialStatus;
 	@JsonProperty("DebtorTownName")
 	private String dbtrTownName;
+	@JsonProperty("Currency")
+	private String currency; 
 	@JsonProperty("Amount")
 	private String amount; 
 	
@@ -97,22 +101,23 @@ public class ChnlCreditTransferRequestPojo {
 			@JsonProperty(value="TerminalId", required=true) String terminalId, 
 			@JsonProperty(value="CategoryPurpose", required=true) String categoryPurpose, 
 			@JsonProperty(value="DebtorName", required=true) String dbtrName, 
-			@JsonProperty(value="DebtorType", required=true) String dbtrType, 
+			@JsonProperty(value="DebtorType") String dbtrType, 
 			@JsonProperty(value="DebtorId", required=true) String dbtrId,   
 			@JsonProperty(value="DebtorAccountNumber", required=true) String dbtrAccountNo,  
 			@JsonProperty(value="DebtorAccountType", required=true) String dbtrAccountType,
-			@JsonProperty(value="DebtorResidentialStatus", required=true) String dbtrResidentialStatus,
-			@JsonProperty(value="DebtorTownName", required=true) String dbtrTownName,
+			@JsonProperty(value="DebtorResidentialStatus") String dbtrResidentialStatus,
+			@JsonProperty(value="DebtorTownName") String dbtrTownName,
+			@JsonProperty(value="Currency") String currency, 
 			@JsonProperty(value="Amount", required=true) String amount, 
 			@JsonProperty(value="FeeTransfer") String feeTransfer, 
 			@JsonProperty(value="RecipientBank", required=true) String recptBank, 
 			@JsonProperty(value="CreditorName", required=true) String crdtName, 
-			@JsonProperty(value="CreditorType", required=true) String crdtType, 
-			@JsonProperty(value="CreditorId", required=true) String crdtId,  
+			@JsonProperty(value="CreditorType") String crdtType, 
+			@JsonProperty(value="CreditorId") String crdtId,  
 			@JsonProperty(value="CreditorAccountNumber", required=true) String crdtAccountNo,   
-			@JsonProperty(value="CreditorAccountType", required=true) String crdtAccountType,  
-			@JsonProperty(value="CreditorResidentialStatus", required=true) String crdtResidentialStatus,
-			@JsonProperty(value="CreditorTownName", required=true) String crdtTownName,
+			@JsonProperty(value="CreditorAccountType") String crdtAccountType,  
+			@JsonProperty(value="CreditorResidentialStatus") String crdtResidentialStatus,
+			@JsonProperty(value="CreditorTownName") String crdtTownName,
 			@JsonProperty(value="CreditorProxyId") String crdtProxyIdValue,
 			@JsonProperty(value="CreditorProxyType") String crdtProxyIdType,
 			@JsonProperty(value="PaymentInformation") String paymentInfo
@@ -232,6 +237,14 @@ public class ChnlCreditTransferRequestPojo {
 		this.dbtrTownName = dbtrTownName;
 	}
 
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
 	public String getAmount() {
 		return amount;
 	}
@@ -329,7 +342,9 @@ public class ChnlCreditTransferRequestPojo {
 	}
 
 	public String getPaymentInfo() {
-		return paymentInfo;
+		if (Optional.ofNullable(paymentInfo).orElse("").length() > 140) 
+			return paymentInfo.substring(0,140);
+		else return paymentInfo;
 	}
 
 	public void setPaymentInfo(String paymentInfo) {
