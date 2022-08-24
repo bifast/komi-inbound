@@ -41,7 +41,9 @@ Bugfix:
 - Tambah retry unt portal notification
 - admi.002 flatService ada error null
 
-5-Agustus-2022 (v.1.5.2-SNAPSHOT)
+20-Agustus-2022 (v.1.6-SNAPSHOT)
+Functional:
+- Untuk revct dari bank lawan post debit-reversal
 Bugfix:
 - ReversalCT salah kasih response
 - AE response corebank 504 error response

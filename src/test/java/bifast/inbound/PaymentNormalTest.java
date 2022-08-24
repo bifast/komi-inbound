@@ -37,7 +37,7 @@ public class PaymentNormalTest {
 	@Autowired private CorebankTransactionRepository cbRepo;
 
 	static final BusinessMessage ctReq = new BusinessMessage();
-	private static String endToEndId = "20220812BMRIIDJA010O0225406656";
+	private static String endToEndId = "20220812BMRIIDJA010O0225400000";
 
 	@Test
     @Order(2)    
@@ -73,7 +73,7 @@ public class PaymentNormalTest {
 		if (lCt.size()>0) ct = lCt.get(0);
 
 		Assertions.assertNotNull(ct);
-		Assertions.assertEquals(ct.getSettlementConfBizMsgIdr(), "RECEIVED");
+		Assertions.assertEquals( "RECEIVED", ct.getSettlementConfBizMsgIdr());
 		
 		CreditTransfer ct2 = null;
 		int ctr = 0;
@@ -84,7 +84,7 @@ public class PaymentNormalTest {
 			ct2 = ctRepo.findById(lCt.get(0).getId()).orElse(null);
 			if (ct2.getCbStatus().equals("DONE")) found = true;
 		}
-		assertEquals(ct2.getCbStatus(), "DONE");
+		assertEquals("DONE", ct2.getCbStatus());
 
 		List<CorebankTransaction> lcb = cbRepo.findByTransactionTypeAndKomiTrnsId("Credit", ct2.getKomiTrnsId());
 		assertEquals(1, lcb.size());

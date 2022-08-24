@@ -6,6 +6,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
+import org.apache.camel.http.base.HttpOperationFailedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -26,10 +27,17 @@ public class CbAccountEnquiryRoute extends RouteBuilder{
 		JacksonDataFormat aeRequestJDF = jdfService.basic(AccountEnquiryRequest.class);
 		JacksonDataFormat aeResponseJDF = jdfService.basic(AccountEnquiryResponse.class);
 
-		onException(Exception.class)
+		onException(HttpOperationFailedException.class).onWhen(simple("${exception.statusCode} == '504'"))
+			.log(LoggingLevel.ERROR, "[${header.cb_msgname}:${header.cb_e2eid}] Corebank TIMEOUT: \n ${exception.message}")
+			.process(this::cbAEFailed).marshal(aeResponseJDF)
+			.log(LoggingLevel.DEBUG,"komi.cb.ae.excp","${body}")
+			.continued(true);
+
+		onException(Exception.class).routeId("komi.cb.ae.excp")
 			.log(LoggingLevel.ERROR, "[${header.cb_msgname}:${header.cb_e2eid}] Call CB Error.")
 			.log(LoggingLevel.ERROR, "${exception.stacktrace}")
 			.process(this::cbAEFailed).marshal(aeResponseJDF)
+//			.log(LoggingLevel.DEBUG,"komi.cb.ae.excp","${body}")
 			.continued(true);
 
 		from("direct:cb_ae").routeId("komi.cb.ae")
